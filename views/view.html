@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Your Quizzes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&family=Space+Grotesk:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #08070f;
+        --bg-alt: #0c0b17;
+        --surface: #131024;
+        --surface-2: #17142a;
+        --surface-hover: #1c1832;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --primary: #9b5cff;
+        --primary-2: #7c3aed;
+        --secondary: #22d3ee;
+        --text: #f5f3ff;
+        --text-dim: #c9c6e0;
+        --muted: #8d8aa3;
+        --danger: #f0555a;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        color: var(--text);
+        font-family: Inter, system-ui, sans-serif;
+        background:
+          radial-gradient(
+            680px 420px at 12% -8%,
+            rgba(155, 92, 255, 0.35),
+            transparent 60%
+          ),
+          radial-gradient(
+            620px 460px at 100% 18%,
+            rgba(34, 211, 238, 0.28),
+            transparent 55%
+          ),
+          linear-gradient(180deg, var(--bg-alt), var(--bg) 40%);
+      }
+      .page {
+        width: min(900px, 100%);
+        margin: auto;
+        padding: 56px 24px 96px;
+      }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 14px;
+        color: var(--secondary);
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      .eyebrow::before {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        content: "";
+      }
+      h1,
+      h2,
+      h3 {
+        font-family: "Space Grotesk", Inter, sans-serif;
+      }
+      h1 {
+        margin: 0 0 10px;
+        font-size: clamp(1.7rem, 4vw, 2.5rem);
+        line-height: 1.15;
+      }
+      #subtitle {
+        margin: 0;
+        color: var(--text-dim);
+        font-size: 0.95rem;
+      }
+      .quiz-grid {
+        display: grid;
+        gap: 16px;
+        margin-top: 32px;
+      }
+      .quiz-card {
+        position: relative;
+        overflow: hidden;
+        padding: 26px 28px;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: var(--surface);
+        transition: 0.25s ease;
+      }
+      .quiz-card::before {
+        position: absolute;
+        inset: 0 0 auto;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        content: "";
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.4s ease;
+      }
+      .quiz-card:hover {
+        border-color: var(--border-strong);
+        background: var(--surface-hover);
+        box-shadow: 0 22px 40px -22px rgba(155, 92, 255, 0.7);
+        transform: translateY(-4px);
+      }
+      .quiz-card:hover::before {
+        transform: scaleX(1);
+      }
+      .quiz-card__head {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+      .quiz-card__icon {
+        display: grid;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      }
+      .quiz-card__title {
+        min-width: 0;
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-size: 1.2rem;
+      }
+      .quiz-card__body {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-top: 14px;
+        padding-left: 54px;
+      }
+      .quiz-card__meta {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-dim);
+        font-size: 0.85rem;
+      }
+      .quiz-card__badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: var(--surface-2);
+      }
+      .quiz-card__count {
+        color: var(--secondary);
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 600;
+      }
+      .quiz-card__count-label {
+        color: var(--muted);
+        font-size: 0.68rem;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+      .message {
+        margin-top: 32px;
+        padding: 38px 24px;
+        border: 1px dashed var(--border-strong);
+        border-radius: 20px;
+        background: var(--surface);
+        text-align: center;
+      }
+      .message h3 {
+        margin: 0 0 6px;
+        font-size: 1.05rem;
+      }
+      .message p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+      .message.error {
+        border-color: rgba(240, 85, 90, 0.55);
+      }
+      @media (max-width: 560px) {
+        .page {
+          padding: 40px 16px 72px;
+        }
+        .quiz-card {
+          padding: 20px 18px;
+          border-radius: 16px;
+        }
+        .quiz-card__body {
+          padding-left: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <div class="eyebrow">Quiz Library</div>
+        <h1>Your Quizzes</h1>
+        <p id="subtitle">Loading your quizzes…</p>
+      </header>
+      <section id="quiz-grid" class="quiz-grid" aria-live="polite"></section>
+      <section id="message" class="message" hidden aria-live="polite"></section>
+    </main>
+
+    <script>
+      const API_URL = "/quizdata";
+      const icons = {
+        quiz: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#08070f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 11 2 2 4-4"/><rect x="3" y="4" width="18" height="16" rx="3"/></svg>',
+        calendar:
+          '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg>',
+        question:
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9.1 9a3 3 0 1 1 4.4 2.6c-1 .6-1.5 1.1-1.5 2.4"/><path d="M12 17.5h.01"/></svg>',
+      };
+
+      const grid = document.querySelector("#quiz-grid");
+      const subtitle = document.querySelector("#subtitle");
+      const message = document.querySelector("#message");
+
+      function quizList(payload) {
+        // Supports: [...], { quizzes: [...] }, or { data: [...] }.
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload?.quizzes)) return payload.quizzes;
+        if (Array.isArray(payload?.data)) return payload.data;
+        return [];
+      }
+
+      function formatDate(value) {
+        const date = new Date(value);
+        return Number.isNaN(date.getTime())
+          ? "Date unavailable"
+          : date.toLocaleDateString();
+      }
+
+      function showMessage(title, text, isError = false) {
+        message.hidden = false;
+        message.classList.toggle("error", isError);
+        message.replaceChildren(
+          Object.assign(document.createElement("h3"), { textContent: title }),
+          Object.assign(document.createElement("p"), { textContent: text }),
+        );
+      }
+
+      function makeCard(quiz) {
+        const title = quiz.title ?? "Untitled Quiz";
+        const total =
+          Number(
+            quiz.total ?? quiz.question_count ?? quiz.questions?.length ?? 0,
+          ) || 0;
+        const card = document.createElement("article");
+        card.className = "quiz-card";
+        card.id = quiz.quiz_uuid;
+        card.innerHTML = `<div class="quiz-card__head"><div class="quiz-card__icon">${icons.quiz}</div><h2 class="quiz-card__title"></h2></div><div class="quiz-card__body"><div class="quiz-card__meta">${icons.calendar}<span></span></div><div class="quiz-card__badge">${icons.question}<span class="quiz-card__count"></span><span class="quiz-card__count-label"></span></div></div>`;
+        card.querySelector("h2").textContent = title;
+        card.querySelector(".quiz-card__meta span").textContent = formatDate(
+          quiz.created_at ?? quiz.createdAt ?? quiz.date,
+        );
+        card.querySelector(".quiz-card__count").textContent = total;
+        card.querySelector(".quiz-card__count-label").textContent =
+          total === 1 ? "Question" : "Questions";
+        return card;
+      }
+    
+      async function loadQuizzes() {
+        try {
+          const response = await fetch(API_URL, {
+            headers: { Accept: "application/json" },
+          });
+          if (!response.ok)
+            throw new Error(`Request failed (${response.status})`);
+          const quizzes = quizList(await response.json());
+          grid.replaceChildren(...quizzes.map(makeCard));
+          subtitle.textContent = quizzes.length
+            ? `${quizzes.length} ${quizzes.length === 1 ? "quiz" : "quizzes"} total`
+            : "No quizzes yet.";
+          if (!quizzes.length)
+            showMessage(
+              "No quizzes yet",
+              "Quizzes will show up here as soon as they are created.",
+            );
+        } catch (error) {
+          console.error("Could not load quizzes:", error);
+          subtitle.textContent = "Unable to load quizzes.";
+          showMessage(
+            "Could not load quizzes",
+            `Check that ${API_URL} exists and returns JSON.`,
+            true,
+          );
+        }
+      }
+      loadQuizzes();
+
+      grid.addEventListener('click', async (e) => {
+    const child = e.target.closest('.quiz-card');
+      const response = await fetch('/clickquiz', {
+            method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+
+            body: JSON.stringify({quizid: child.id})
+        });
+
+        const data = await response.json();
+        
+
+
+      });
+    </script>
+  </body>
+</html>

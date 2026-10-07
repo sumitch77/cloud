@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Help &amp; Support | FAQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/output.css">
+<style>
+  /* Essential Pseudo-element styles for the Plus/Minus accordion icon */
+  .faq-icon::before,
+  .faq-icon::after {
+    content:'';
+    position:absolute;
+    top:50%;
+    left:50%;
+    background:currentColor;
+    transform:translate(-50%,-50%);
+    border-radius:1px;
+  }
+  .faq-icon::before {
+    width:100%;
+    height:1.6px;
+  }
+  .faq-icon::after {
+    width:1.6px;
+    height:100%;
+    transition:transform .3s cubic-bezier(.4,0,.2,1), opacity .3s cubic-bezier(.4,0,.2,1);
+  }
+  .faq-item.active .faq-icon::after {
+    transform:translate(-50%,-50%) scaleY(0);
+    opacity:0;
+  }
+  .faq-item.active .faq-answer {
+    grid-template-rows:1fr;
+  }
+</style>
+</head>
+<body class="bg-white text-[#0a0a0a] font-['Inter',sans-serif] antialiased selection:bg-neutral-200">
+
+<!-- Header -->
+<header class="h-[clamp(170px,20vh,260px)] bg-[#0a0a0a] text-white flex flex-col items-center justify-center gap-3.5 text-center px-4 sm:px-[18px]">
+  <span class="font-normal font-['Inter',sans-serif] font-semibold text-[0.72rem] tracking-[0.28em] uppercase text-neutral-400">Support Center</span>
+  <h1 class="m-0 font-['Manrope',sans-serif] font-extrabold text-[clamp(2rem,4.6vw,3.1rem)] tracking-[-0.02em] leading-[1.1]">Help and Support</h1>
+  <span class="w-[44px] h-[2px] bg-neutral-700 rounded-full"></span>
+  <p class="font-normal text-[0.95rem] text-neutral-400 max-w-[440px]">Answers to the most common questions about your account and study materials.</p>
+</header>
+
+<main>
+  <section class="bg-[#d6d6d6] py-[56px] px-4 sm:px-4 md:py-[72px] md:px-6 pb-[72px] md:pb-[96px]" aria-labelledby="faq-heading">
+    <div class="text-center max-w-[640px] mx-auto mb-10">
+      <h2 id="faq-heading" class="m-0 mb-2.5 font-['Manrope',sans-serif] font-bold text-[clamp(1.5rem,3vw,2rem)] tracking-[-0.01em] text-[#0a0a0a]">Frequently Asked Questions</h2>
+      <p class="m-0 text-[0.98rem] text-neutral-500 leading-relaxed">Everything you need to know about getting the most out of the platform.</p>
+    </div>
+
+    <div class="faq-container w-full sm:w-[86%] lg:w-[76%] max-w-[820px] mx-auto flex flex-col gap-2.5 md:gap-3.5">
+
+      <!-- FAQ Item 1 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-1" id="question-1">
+          <span class="q-text flex-1">How do I create an account?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-1" role="region" aria-labelledby="question-1">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Tap "Sign Up" on the homepage and enter your name, email address, and a password. You'll get a verification link by email — click it to activate your account and start browsing right away.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 2 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-2" id="question-2">
+          <span class="q-text flex-1">How can I access study materials?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-2" role="region" aria-labelledby="question-2">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Once you're signed in, open the "Library" tab from the main menu. Materials are organized by subject, grade level, and topic, so you can browse by category or jump straight to what you need.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 3 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-3" id="question-3">
+          <span class="q-text flex-1">How do I search for a specific subject?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-3" role="region" aria-labelledby="question-3">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Use the search bar at the top of any page and type the subject or topic name. You can also filter results by resource type — notes, videos, or practice sets — to narrow things down quickly.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 4 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-4" id="question-4">
+          <span class="q-text flex-1">Are previous-year question papers available?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-4" role="region" aria-labelledby="question-4">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Yes. Previous-year papers are available under "Practice &gt; Past Papers" for most subjects, sorted by year, so you can work through them in order or jump to a specific one.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 5 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-5" id="question-5">
+          <span class="q-text flex-1">How can I use the AI chatbot?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-5" role="region" aria-labelledby="question-5">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Click the chat icon in the bottom corner of any page to open the assistant. Ask it to explain a concept, summarize a chapter, or generate practice questions on a topic you're studying.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 6 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-6" id="question-6">
+          <span class="q-text flex-1">Can I download study materials?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-6" role="region" aria-labelledby="question-6">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Most notes and papers include a download icon that saves a PDF copy for offline use. A few licensed resources are view-only and marked accordingly on their page.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 7 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-7" id="question-7">
+          <span class="q-text flex-1">How do I reset my password?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-7" role="region" aria-labelledby="question-7">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Select "Forgot password?" on the sign-in page and enter your registered email. You'll receive a reset link within a few minutes — it stays valid for 30 minutes.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 8 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-8" id="question-8">
+          <span class="q-text flex-1">Are the resources free to use?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-8" role="region" aria-labelledby="question-8">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Core study materials, past papers, and the AI chatbot are free for every registered user. A small set of premium mock tests and expert-reviewed notes sit under an optional paid plan.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 9 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-9" id="question-9">
+          <span class="q-text flex-1">How can I report incorrect information?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-9" role="region" aria-labelledby="question-9">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Every resource page has a "Report an issue" link near the bottom. Flag the error with a short note and our content team will review and correct it, usually within a couple of days.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ Item 10 -->
+      <div class="faq-item bg-white/16 border-[1.5px] border-white/90 rounded-xl md:rounded-2xl overflow-hidden backdrop-blur-[6px] shadow-[0_1px_2px_rgba(0,0,0,0.04)] hover:shadow-[0_6px_18px_rgba(0,0,0,0.08)] hover:-translate-y-px transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+        <button class="faq-question w-full flex items-center justify-center sm:justify-between gap-3.5 md:gap-5 bg-transparent border-none m-0 text-left cursor-pointer py-[19px] px-5 md:py-6 md:px-[30px] font-['Manrope',sans-serif] font-semibold text-[0.95rem] md:text-[1.03rem] text-[#0a0a0a] hover:bg-[#0a0a0a] hover:text-white hover:pl-6 md:hover:pl-9 focus-visible:outline-2 focus-visible:outline-current focus-visible:outline-offset-[-2px] focus-visible:rounded-md transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)] [-webkit-tap-highlight-color:transparent]" aria-expanded="false" aria-controls="answer-10" id="question-10">
+          <span class="q-text flex-1">How can I contact support?</span>
+          <span class="faq-icon-wrap flex-shrink-0 w-7 h-7 md:w-8 md:h-8 rounded-full border-[1.5px] border-neutral-300 flex items-center justify-center transition-all duration-300 ease-[cubic-bezier(.4,0,.2,1)]">
+            <span class="faq-icon relative w-[14px] h-[14px] text-[#0a0a0a]"></span>
+          </span>
+        </button>
+        <div class="faq-answer grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-[cubic-bezier(.4,0,.2,1)]" id="answer-10" role="region" aria-labelledby="question-10">
+          <div class="faq-answer-inner overflow-hidden">
+            <p class="m-0 px-5 pb-[22px] md:px-[30px] md:pb-[26px] max-w-[62ch] font-normal text-[0.92rem] md:text-[0.97rem] leading-[1.7] text-neutral-700">Reach the support team any time at <a href="mailto:abc@mail.com" class="text-neutral-900 underline underline-offset-4 decoration-neutral-500 hover:text-white hover:decoration-white transition-all">abc@mail.com</a>, or use the contact form under "Help &gt; Contact Us." We typically reply within one business day.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="site-footer bg-[#0a0a0a] text-white text-center py-[40px] px-5 md:py-[52px] md:px-6">
+  <p class="m-0 font-normal text-[0.98rem] text-neutral-300 leading-relaxed">Couldn't find your answer? Mail us at <a href="mailto:abc@mail.com" class="text-white font-semibold underline underline-offset-4 decoration-neutral-500 hover:underline-offset-[6px] hover:decoration-white focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-4 focus-visible:rounded-sm transition-all">abc@mail.com</a></p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-question').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.faq-item');
+      var answer = item.querySelector('.faq-answer');
+      var isOpen = item.classList.toggle('active');
+      btn.setAttribute('aria-expanded', String(isOpen));
+      answer.setAttribute('aria-hidden', String(!isOpen));
+
+      // Active state adjustments via Tailwind styling hooks if needed
+      const iconWrap = btn.querySelector('.faq-icon-wrap');
+      const icon = btn.querySelector('.faq-icon');
+      if (isOpen) {
+        iconWrap.classList.add('bg-[#0a0a0a]', 'border-[#0a0a0a]', 'rotate-180');
+        icon.classList.add('text-white');
+      } else {
+        iconWrap.classList.remove('bg-[#0a0a0a]', 'border-[#0a0a0a]', 'rotate-180');
+        icon.classList.remove('text-white');
+      }
+    });
+  });
+</script>
+
+
+
+</body>
+</html>

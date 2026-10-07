@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Quiz — Quiz Generator</title>
+  <link rel="stylesheet" href="/output.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+</head>
+<body class="min-h-full m-0 bg-slate-950 text-violet-50 font-sans antialiased leading-normal">
+
+  <!-- Ambient background glow blobs -->
+  <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div class="absolute -top-70 left-1/2 -translate-x-1/2 w-175 h-175 rounded-full blur-3xl bg-purple-600/35"></div>
+    <div class="absolute -bottom-50 -right-40 w-120 h-120 rounded-full blur-3xl bg-cyan-400/15"></div>
+  </div>
+
+  <div class="relative z-10 max-w-4xl mx-auto pt-6 sm:pt-16 pb-30 sm:pb-35 px-4 sm:px-6">
+    <!-- Header -->
+    <header class="flex flex-col items-start">
+    
+      <h1 class="font-sans font-semibold tracking-tight text-3xl sm:text-4xl text-violet-50 mt-2 mb-2.5">
+        Create Quiz
+      </h1>
+      <p class="text-slate-300 text-sm sm:text-base max-w-lg mb-4.5">
+        Add questions and choose the correct answers.
+      </p>
+      <span class="inline-flex items-center gap-2 text-xs font-mono tracking-wider uppercase text-slate-400 py-1.5 px-3.5 border border-white/10 rounded-full bg-slate-900/50" id="questionCounter">
+        Questions: 0
+      </span>
+
+      <input id="title" placeholder="Enter Title of Quiz" type="text" max="25" class="border-2 p-2 size-6 mt-4 h-12 rounded-2xl w-208"/>
+    </header>
+
+
+    <!-- Question Cards Container -->
+    <div id="cardsContainer" class="flex flex-col gap-7"></div>
+
+    <p id="mainmsg" class="p-2 m-2 size-2 text-2xl text-red-700"></p>
+
+    <!-- Bottom Actions -->
+    <div class="mt-8 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div>
+        <button type="button" class="hover:cursor-pointer w-full sm:w-auto inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl border border-white/20 bg-slate-900 text-violet-50 font-medium text-sm transition-all duration-200 hover:border-purple-500 hover:bg-slate-800/80 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-2 focus-visible:outline-cyan-400 focus-visible:outline-offset-2" id="addQuestionBtn">
+          + Add Question
+        </button>
+      </div>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <button type="button" class="hover:cursor-pointer w-full sm:w-auto py-3.5 px-4.5 rounded-xl border border-transparent bg-transparent text-slate-300 font-medium text-sm transition-all duration-200 hover:text-violet-50 hover:bg-white/5 hover:border-white/10 focus-visible:outline-2 focus-visible:outline-cyan-400 focus-visible:outline-offset-2" id="saveDraftBtn">
+          Save Draft
+        </button>
+        <button type="button"  class="hover:cursor-pointer w-full sm:w-auto py-4 px-8.5 rounded-2xl border-0 bg-gradient-to-r from-purple-700 to-purple-500 text-white font-sans font-semibold text-base shadow-lg shadow-purple-950 transition-all duration-300 hover:shadow-purple-500/25 hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-98 focus-visible:outline-2 focus-visible:outline-cyan-400 focus-visible:outline-offset-4" id="createQuizBtn">
+          Create Quiz
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="fixed left-1/2 bottom-7 -translate-x-1/2 translate-y-4 opacity-0 pointer-events-none transition-all duration-300 z-50 inline-flex items-center gap-2.5 py-3.5 px-5.5 bg-slate-900 border border-white/20 rounded-xl text-violet-50 font-mono text-sm shadow-2xl" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="/manualupload.js"></script>
+  
+  </script>
+</body>
+</html>

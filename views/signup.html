@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in with email</title>
+<link rel="stylesheet" href="/output.css">
+<style>
+  :root { --sky-top:#a8d8f0; --sky-mid:#cfe9f8; --cloud:#ffffff; }
+  :root:not([data-theme="light"]) { }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --sky-top:#5b7f99; --sky-mid:#8fb4cc; --cloud:#e8f1f7; }
+  }
+  :root[data-theme="dark"] { --sky-top:#5b7f99; --sky-mid:#8fb4cc; --cloud:#e8f1f7; }
+  body {
+    background:
+      radial-gradient(60% 40% at 20% 100%, var(--cloud) 0%, transparent 60%),
+      radial-gradient(70% 45% at 75% 105%, var(--cloud) 0%, transparent 62%),
+      radial-gradient(55% 35% at 50% 95%, var(--cloud) 0%, transparent 65%),
+      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--cloud) 100%);
+  }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 font-sans">
+
+  <div class="w-96 max-w-full rounded-3xl bg-linear-to-b from-cyan-50 to-white p-6 shadow-2xl shadow-sky-900/10 ring-1 ring-white/60">
+
+
+
+    <h1 class="mt-5 text-center text-2xl font-bold tracking-tight text-gray-900">Create Account</h1>
+
+    <div class="mt-6 space-y-3">
+         <div class="flex h-12 items-center gap-3 rounded-xl bg-gray-100 px-4">
+        <svg class="size-4 shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <input type="Email" placeholder="Email" id="email" class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none">
+      </div>
+
+      <div class="flex h-12 items-center gap-3 rounded-xl bg-gray-100 px-4">
+        <svg class="size-4 shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <input type="text" placeholder="Username" id="username" class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none">
+      </div>
+
+      <div class="flex h-12 items-center gap-3 rounded-xl bg-gray-100 px-4">
+        <svg class="size-4 shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"/></svg>
+        <input id="password" type="password" placeholder="Password" class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none">
+        <button id="toggle" type="button" class="shrink-0 text-gray-400 hover:text-gray-600">
+          <svg class="size-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+        </button>
+      </div>
+      <div id="message" class=" mt-2 mb-2 h-1.5 text-red-800"></div>
+    </div>
+
+
+    <button id="signup" class="mt-4 h-11 w-full rounded-xl bg-gray-900 text-sm font-semibold text-white transition hover:bg-gray-800">Verify Email and Login</button>
+    <div class="mt-6 flex items-center gap-3">
+      <span class="h-px grow border-t border-dashed border-gray-300"></span>
+      <span class="text-xs text-gray-800">Or sign in with</span>
+      <span class="h-px grow border-t border-dashed border-gray-300"></span>
+    </div>
+
+    <div class="mt-4 flex gap-3">
+      <button id="google" class="flex h-12 hover:cursor-pointer grow items-center justify-center rounded-xl border border-gray-200 bg-white transition hover:bg-gray-800">
+        <svg class="size-7" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2.5 24 .5 14.6.5 6.5 5.9 2.6 13.7l7.9 6.1C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.6 3-2.3 5.6-4.9 7.3l7.6 5.9c4.4-4.1 7.1-10.2 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.2c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16 0 19.9 0 23.5s1 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 47.5c6.2 0 11.5-2 15.4-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.1C6.5 42.1 14.6 47.5 24 47.5z"/></svg>
+      </button>
+    </div>
+
+       
+        <p class="s-8 text-gray-900 mt-2">  Already have a account ? <a class="text-blue-500 underline" href="/login">
+     Login Here
+      </a></p>
+   
+  
+
+  </div>
+</body>
+
+<script>
+  const password = document.getElementById('password');
+  const username = document.getElementById('username');
+  const email = document.getElementById('email');
+  const msg = document.getElementById('message');
+ 
+  const signup = document.getElementById('signup');
+  const google = document.getElementById('google');
+  import FingerprintJS from '@fingerprintjs/fingerprintjs';
+
+const fpPromise = FingerprintJS.load(); 
+
+export async function getFingerprint() {
+  try {
+    const fp = await fpPromise;
+    const { datap } = await fp.get();
+    return datap;
+  } catch {
+    return null;  
+  }
+}
+
+
+  document.getElementById('toggle').addEventListener('click', () => {
+    password.type = password.type === 'password' ? 'text' : 'password';
+  });
+
+  signup.addEventListener('click',async(e)=>{
+    e.preventDefault();
+
+    if(!username.value || !password.value || !email.value){
+      msg.innerText = 'Please Fill all fields';
+      setTimeout(()=>{
+        msg.innerText = '';
+      },4000)
+      return;
+    }
+    if(password.value.length<6){
+          msg.innerText = 'Password should be more than 6 characters';
+      setTimeout(()=>{
+        msg.innerText = '';
+      },4000)
+      return;
+    }
+        const response = await fetch('/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' ,
+                  ...(datap && { 'x-device-fingerprint': datap }),
+             },
+            body: JSON.stringify({username: username.value , password:password.value , email:email.value})
+        });
+        const data = await response.json();
+        if(data.success){
+          msg.classList.replace('text-red-800','text-green-800');
+          msg.innerText = 'Verification Email Sent. Please check your email to verify your account.';
+          setTimeout(()=>{
+            msg.innerText = '';
+            msg.classList.replace('text-green-800','text-red-800');
+          },4000)
+        }else{
+          msg.innerText = data.message;
+          setTimeout(()=>{
+            msg.innerText = '';
+          },4000)
+        }
+
+  });
+</script>
+</html>

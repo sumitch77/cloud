@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cloud</title>
+<link rel="stylesheet" href="/output.css">
+</head>
+<body class="min-h-screen bg-neutral-950 text-neutral-100 antialiased">
+
+  <!-- Header -->
+  <header class="w-full border-b border-neutral-800 bg-neutral-950">
+    <div class="flex h-16 items-center justify-between px-4 sm:px-6">
+
+      <!-- Logo -->
+      <a href="/" class="flex items-center gap-3">
+        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-white">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 8.5a4.5 4.5 0 0 1 .5 9.5H7z" />
+            <path d="M12 16v-5m0 0-2 2m2-2 2 2" />
+          </svg>
+        </span>
+        <span class="text-xl font-semibold tracking-tight">cloud</span>
+      </a>
+
+      <!-- Right side -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="hidden items-center gap-2 rounded-full bg-neutral-900 px-3 py-2 text-sm text-neutral-400 sm:flex">
+          <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3 5 6v5c0 4.5 3 8.5 7 10 4-1.5 7-5.5 7-10V6l-7-3z" />
+            <path d="m9 12 2 2 4-4" />
+          </svg>
+          Private &amp; secure
+        </div>
+        <button type="button" class="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
+          Login
+        </button>
+        <a href="/logout" class="rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 transition hover:bg-neutral-300 active:bg-neutral-400">
+          Logout
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main class="px-4 py-8 sm:px-6">
+
+    <!-- Search -->
+    <section class="flex flex-col gap-3 sm:flex-row">
+      <div class="relative flex-1">
+        <svg class="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="10" r="6" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        <input
+          type="text"
+          placeholder="Search with username"
+          class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-900 pl-12 pr-4 text-base text-neutral-100 shadow-sm placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+        />
+      </div>
+      <button type="button" class="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 px-8 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="10" cy="10" r="6" />
+          <path d="m20 20-3.5-3.5" />
+        </svg>
+        Search
+      </button>
+    </section>
+
+    <!-- Filters -->
+    <section id="filters" class="mt-5 flex flex-wrap gap-2">
+      <button type="button" data-filter="public" class="rounded-lg border mr-4 border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Public</button>
+
+      <button type="button" data-filter="text" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Text</button>
+      <button type="button" data-filter="all" class="rounded-lg   hover:cursor-pointer bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-400 active:bg-blue-600">All</button>
+      <button type="button" data-filter="credentials" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Credentials</button>
+      <button type="button" data-filter="images" class="rounded-lg border hover:cursor-pointer  border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Images</button>
+      <button type="button" data-filter="docs" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Docs</button>
+    </section>
+
+    <!-- Upload button -->
+    <section class="mt-6">
+      <button id="open-upload" type="button" class="flex items-center gap-3 rounded-xl border border-neutral-800 bg-neutral-900 px-5 py-3 text-base font-semibold text-neutral-100 shadow-sm transition hover:border-neutral-700 hover:bg-neutral-800 active:bg-neutral-700">
+        <span class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/15 text-blue-400">
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 16V4m0 0-4 4m4-4 4 4" />
+            <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+          </svg>
+        </span>
+        Upload
+      </button>
+    </section>
+
+    <!-- Main data area: cards are rendered here by the script below -->
+    <section id="content" class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></section>
+
+  </main>
+            <button type="button" id="showMore" class="rounded-lg hidden ml-8 mt-2 hover:cursor-pointer hover:bg-blue-500 px-4 py-2 text-sm  border-neutral-800 bg-neutral-900 font-medium text-white transition active:bg-blue-700">Show more</button>
+
+  <!-- Upload modal (one box, switches between views) -->
+  <div id="upload-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4" role="dialog" aria-modal="true" aria-labelledby="upload-title">
+    <div class="flex min-h-96 w-full max-w-lg flex-col rounded-2xl border border-neutral-800 bg-neutral-900 p-6 shadow-xl">
+
+      <!-- Modal header -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button id="back-upload" type="button" aria-label="Back" class="hidden h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m15 6-6 6 6 6" />
+            </svg>
+          </button>
+          <h2 id="upload-title" class="text-lg font-semibold">Upload</h2>
+        </div>
+        <button id="close-upload" type="button" aria-label="Close" class="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-400 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M6 6l12 12M18 6 6 18" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- View: choose type -->
+      <div data-view="menu" class="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <button type="button" data-target="text" class="flex flex-col items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/15 text-sky-400">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6V4h14v2M12 4v16m-3 0h6" /></svg>
+          </span>
+          <span class="text-base font-medium">Upload text</span>
+        </button>
+
+        <button type="button" data-target="credentials" class="flex flex-col items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9m-3 3 3 3m-6-3 2 2" /></svg>
+          </span>
+          <span class="text-base font-medium">Upload credentials</span>
+        </button>
+
+        <button type="button" data-target="images" class="flex flex-col items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></svg>
+          </span>
+          <span class="text-base font-medium">Upload images</span>
+        </button>
+
+        <button type="button" data-target="docs" class="flex flex-col items-start gap-3 rounded-xl border border-neutral-800 bg-neutral-950 p-5 text-left transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-400">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" /><path d="M14 3v5h5M9 13h6m-6 4h6" /></svg>
+          </span>
+          <span class="text-base font-medium">Upload docs</span>
+        </button>
+      </div>
+
+      <!-- View: text -->
+      <form data-view="text" class="mt-5 hidden flex-1 flex-col gap-4">
+          <input
+          id="text-title"
+            type="text"
+            name="title"
+            required
+            placeholder="Title"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+        <textarea
+        id="text-content"
+          name="content"
+          required
+          placeholder="Type or paste your text here"
+          class="min-h-48 w-full flex-1 resize-none rounded-xl border border-neutral-800 bg-neutral-950 p-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+        ></textarea>
+         <div id="text-msg" class=" mt-2 mb-2 h-1.5 text-red-800"></div>
+        <button type="button" id="text-submit" class="h-12 w-full rounded-xl bg-blue-500 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">Upload</button>
+      </form>
+
+      <!-- View: credentials -->
+      <form data-view="credentials" class="mt-5 hidden flex-1 flex-col gap-4">
+        <div class="flex flex-1 flex-col gap-3">
+          <input
+            type="text"
+            id="credentials-title"
+            name="title"
+            required
+            placeholder="Title"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+          <input
+            type="text"
+            id="credentials-username"
+            name="username"
+            required
+            autocomplete="off"
+            placeholder="Username or email"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+          <input
+            type="password"
+            id="credentials-password"
+            name="password"
+            required
+            autocomplete="new-password"
+            placeholder="Password"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+        </div>
+                 <div id="credentials-msg" class=" mt-2 mb-2 h-1.5 text-red-800"></div>
+
+        <button type="button" id="credentials-submit" class="h-12 w-full rounded-xl bg-blue-500 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">Upload</button>
+      </form>
+
+      <!-- View: images -->
+      <form data-view="images" class="mt-5 hidden flex-1 flex-col gap-4">
+          <input
+          id="image-title"
+            type="text"
+            name="title"
+            required
+            placeholder="Title"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+        <label class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-950 p-6 text-center transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500/15 text-blue-400">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4m0 0-4 4m4-4 4 4" />
+              <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+            </svg>
+          </span>
+          <span class="text-base font-medium">Choose an image</span>
+          <span data-file-name class="max-w-full truncate text-sm text-neutral-400">No file selected</span>
+          <input type="file" id="image-file" name="file" accept="image/*" required class="hidden" />
+        </label>
+                 <div id="image-msg" class=" mt-2 mb-2 h-1.5 text-red-800"></div>
+
+        <button type="button" id="image-submit" class="h-12 w-full rounded-xl bg-blue-500 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">Upload</button>
+      </form>
+
+      <!-- View: docs -->
+      <form data-view="docs" class="mt-5 hidden flex-1 flex-col gap-4">
+          <input
+            type="text"
+            id="doc-title"
+            name="title"
+            required
+            placeholder="Title"
+            class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 text-base text-neutral-100 placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+        <label class="flex flex-1 cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-neutral-700 bg-neutral-950 p-6 text-center transition hover:border-blue-500 hover:bg-neutral-800 active:bg-neutral-700">
+          <span class="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-500/15 text-blue-400">
+            <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 16V4m0 0-4 4m4-4 4 4" />
+              <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />
+            </svg>
+          </span>
+          <span class="text-base font-medium">Choose a document</span>
+          <span data-file-name class="max-w-full truncate text-sm text-neutral-400">No file selected</span>
+          <input type="file" id="doc-file" name="file" accept=".pdf,.doc,.docx,.txt,.ppt,.pptx,.xls,.xlsx,.csv" required class="hidden" />
+        </label>
+        <div id="doc-msg" class="mt-2 mb-2 h-1.5 text-red-800"></div>
+        <button type="button" id="doc-submit" class="h-12 w-full rounded-xl bg-blue-500 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">Upload</button>
+      </form>
+
+    </div>
+  </div>
+
+  <script>
+
+const content = document.getElementById('content');
+const filterBar = document.getElementById('filters');
+    const showMoreBtn = document.getElementById('showMore');
+
+const LIMIT = 12;
+
+const ACTIVE = ['bg-blue-500', 'text-white', 'hover:bg-blue-400', 'active:bg-blue-600'];
+const INACTIVE = ['border', 'border-neutral-800', 'bg-neutral-900', 'text-neutral-300', 'hover:bg-neutral-800', 'hover:text-white', 'active:bg-neutral-700'];
+
+let store = { text: [], credentials: [], images: [], docs: [] };
+let currentFilter = 'all';
+
+function normalize(data) {
+  const src = data.data || data;
+  const out = {};
+  ['text', 'credentials', 'images', 'docs'].forEach((key) => {
+    out[key] = Array.isArray(src[key]) ? src[key] : [];
+  });
+  return out;
+}
+
+function el(tag, cls, text) {
+  const node = document.createElement(tag);
+  if (cls) node.className = cls;
+  if (text !== undefined) node.textContent = text;
+  return node;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return 'Uploaded at -';
+  return 'Uploaded at ' + d.toLocaleString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+}
+
+const CARD = 'flex flex-col gap-4 rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm transition hover:border-neutral-700';
+
+
+// Copy button
+function copyButton(value) {
+  const btn = el(
+    'button',
+    'shrink-0 rounded-md border border-neutral-700 bg-neutral-900 px-2.5 py-1 text-xs font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700',
+    'Copy'
+  );
+
+  btn.type = 'button';
+
+  btn.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(value || '');
+
+      btn.textContent = 'Copied';
+
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+      }, 1200);
+    } catch (err) {
+      console.error('Copy failed:', err);
+    }
+  });
+
+  return btn;
+}
+
+
+// Card header with optional copy button
+function cardHeader(item, copyValue = null) {
+  const header = el('div', 'flex items-start justify-between gap-3 min-w-0');
+
+  const box = el('div', 'min-w-0');
+
+  box.appendChild(
+    el(
+      'h3',
+      'truncate text-base font-bold text-neutral-100',
+      item.title || 'Untitled'
+    )
+  );
+
+  box.appendChild(
+    el(
+      'p',
+      'mt-1 text-xs text-neutral-500',
+      formatDate(item.created_at)
+    )
+  );
+
+  header.appendChild(box);
+
+  if (copyValue !== null) {
+    header.appendChild(copyButton(copyValue));
+  }
+
+  return header;
+}
+
+
+function textCard(item) {
+  const card = el('article', CARD);
+
+  card.appendChild(
+    cardHeader(item, item.value || '')
+  );
+
+  card.appendChild(
+    el(
+      'p',
+      'line-clamp-4 whitespace-pre-line break-words text-sm text-neutral-300',
+      item.value || ''
+    )
+  );
+
+  return card;
+}
+
+
+function fieldRow(label, valueNode, copyValue = null) {
+  const row = el(
+    'div',
+    'flex items-center justify-between gap-3 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2'
+  );
+
+  const left = el('div', 'min-w-0');
+
+  left.appendChild(
+    el('p', 'text-xs text-neutral-500', label)
+  );
+
+  left.appendChild(valueNode);
+
+  row.appendChild(left);
+
+  if (copyValue !== null) {
+    row.appendChild(copyButton(copyValue));
+  }
+
+  return { row, left };
+}
+
+
+function credentialCard(item) {
+  const card = el('article', CARD);
+
+  // Credential card does not have a copy button in the title
+  card.appendChild(cardHeader(item));
+
+
+  // Username
+  const username = item.username || item.email || '';
+
+  const usernameRow = fieldRow(
+    'Username / email',
+    el(
+      'p',
+      'truncate text-sm text-neutral-200',
+      username
+    ),
+    username
+  );
+
+  card.appendChild(usernameRow.row);
+
+
+  // Password
+  const password = item.password || '';
+
+  const pass = el(
+    'p',
+    'truncate text-sm text-neutral-200',
+    '••••••••'
+  );
+
+  const passwordRow = fieldRow(
+    'Password',
+    pass,
+    password
+  );
+
+  const toggle = el(
+    'button',
+    'shrink-0 text-xs font-medium text-blue-400 transition hover:text-blue-300',
+    'Show'
+  );
+
+  toggle.type = 'button';
+
+  let shown = false;
+
+  toggle.addEventListener('click', () => {
+    shown = !shown;
+
+    pass.textContent = shown
+      ? password
+      : '••••••••';
+
+    toggle.textContent = shown
+      ? 'Hide'
+      : 'Show';
+  });
+
+  passwordRow.row.appendChild(toggle);
+
+  card.appendChild(passwordRow.row);
+
+  return card;
+}
+
+
+// Cloudinary helpers: insert transformations right after "/upload/"
+function cloudinary(url, transform) {
+  return url && url.includes('/upload/')
+    ? url.replace('/upload/', '/upload/' + transform + '/')
+    : url;
+}
+
+
+function imageCard(item) {
+  const card = el('article', CARD);
+
+  const link = el('a', 'block');
+
+  link.href = item.url;
+  link.target = '_blank';
+  link.rel = 'noopener';
+
+  const img = el(
+    'img',
+    'aspect-video w-full rounded-lg bg-neutral-950 object-cover'
+  );
+
+  img.src = cloudinary(
+    item.url,
+    'w_600,ar_16:9,c_fill,f_auto,q_auto'
+  );
+
+  img.alt = item.title || '';
+  img.loading = 'lazy';
+
+  link.appendChild(img);
+  card.appendChild(link);
+
+  // Title + Copy URL button
+  card.appendChild(
+    cardHeader(item, item.url)
+  );
+
+  return card;
+}
+
+
+function docCard(item) {
+  const card = el('article', CARD);
+
+  const top = el('div', 'flex items-center gap-3');
+
+  const icon = el(
+    'span',
+    'flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-violet-500/15 text-violet-400'
+  );
+
+  icon.innerHTML =
+    '<svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" /><path d="M14 3v5h5M9 13h6m-6 4h6" /></svg>';
+
+  top.appendChild(icon);
+
+  // Title + Copy URL button
+  top.appendChild(
+    cardHeader(item, item.url)
+  );
+
+  card.appendChild(top);
+
+
+  const ext = (item.url || '')
+    .split('?')[0]
+    .split('.')
+    .pop();
+
+  const badge = el(
+    'span',
+    'w-fit rounded-md bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-300',
+    ext && ext.length <= 5
+      ? ext.toUpperCase()
+      : 'FILE'
+  );
+
+  card.appendChild(badge);
+
+
+  const actions = el('div', 'flex gap-2');
+
+  const view = el(
+    'a',
+    'flex-1 rounded-lg bg-blue-500 px-4 py-2 text-center text-sm font-medium text-white transition hover:bg-blue-400 active:bg-blue-600',
+    'View'
+  );
+
+  view.href = item.url;
+  view.target = '_blank';
+  view.rel = 'noopener';
+
+
+  const download = el(
+    'a',
+    'flex-1 rounded-lg border border-neutral-700 px-4 py-2 text-center text-sm font-medium text-neutral-200 transition hover:bg-neutral-800 active:bg-neutral-700',
+    'Download'
+  );
+
+  download.href = cloudinary(item.url, 'fl_attachment');
+
+
+  actions.appendChild(view);
+  actions.appendChild(download);
+
+  card.appendChild(actions);
+
+  return card;
+}
+
+
+const builders = {
+  text: textCard,
+  credentials: credentialCard,
+  images: imageCard,
+  docs: docCard
+};
+
+
+function byLatest(a, b) {
+  return new Date(b.created_at) - new Date(a.created_at);
+}
+
+
+function render() {
+  content.replaceChildren();
+
+  if (currentFilter === 'public') return;
+
+  let items;
+
+  if (currentFilter === 'all') {
+    items = [];
+
+    Object.keys(builders).forEach((type) => {
+      store[type].forEach((item) => {
+        items.push({ type, item });
+      });
+    });
+
+    items.sort((a, b) => byLatest(a.item, b.item));
+
+  } else {
+    items = store[currentFilter].map((item) => ({
+      type: currentFilter,
+      item
+    }));
+
+    items.sort((a, b) => byLatest(a.item, b.item));
+  }
+
+  items = items.slice(0, LIMIT);
+
+
+  if (!items.length) {
+    content.appendChild(
+      el(
+        'p',
+        'col-span-full py-12 text-center text-sm text-neutral-500',
+        'Nothing uploaded yet.'
+      )
+    );
+
+    return;
+  }
+
+
+  items.forEach(({ type, item }) => {
+    content.appendChild(
+      builders[type](item)
+    );
+  });
+}
+
+
+function setFilter(name) {
+  currentFilter = name;
+
+  filterBar.querySelectorAll('[data-filter]').forEach((btn) => {
+    const on = btn.dataset.filter === name;
+
+    btn.classList.remove(
+      ...(on ? INACTIVE : ACTIVE)
+    );
+
+    btn.classList.add(
+      ...(on ? ACTIVE : INACTIVE)
+    );
+  });
+
+  render();
+}
+
+
+filterBar.addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-filter]');
+
+  if (btn) {
+    setFilter(btn.dataset.filter);
+  }
+});
+
+
+async function loadData() {
+  try {
+    const response = await fetch('/dashboard/data?page=1&type=all');
+
+    const data = await response.json();
+
+    if (data.success === false) {
+      throw new Error('failed');
+    }
+
+    store = normalize(data);
+
+    render();
+    showMoreBtn.classList.remove('hidden');
+
+  } catch (err) {
+    content.replaceChildren(
+      el(
+        'p',
+        'col-span-full text-center text-red-500',
+        'Failed to load data'
+      )
+    );
+  }
+}
+
+
+loadData();
+
+
+
+
+    /* ---------- Upload modal ---------- */
+
+    const modal = document.getElementById('upload-modal');
+    const title = document.getElementById('upload-title');
+    const backBtn = document.getElementById('back-upload');
+    const views = modal.querySelectorAll('[data-view]');
+
+    const titles = {
+      menu: 'Upload',
+      text: 'Upload text',
+      credentials: 'Upload credentials',
+      images: 'Upload images',
+      docs: 'Upload docs'
+    };
+
+    function showView(name) {
+      views.forEach((view) => {
+        const active = view.dataset.view === name;
+        view.classList.toggle('hidden', !active);
+        view.classList.toggle(name === 'menu' ? 'grid' : 'flex', active);
+        if (!active) view.classList.remove('flex', 'grid');
+      });
+      title.textContent = titles[name];
+      backBtn.classList.toggle('hidden', name === 'menu');
+      backBtn.classList.toggle('flex', name !== 'menu');
+    }
+
+    function openModal() {
+      showView('menu');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeModal() {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    document.getElementById('open-upload').addEventListener('click', openModal);
+    document.getElementById('close-upload').addEventListener('click', closeModal);
+    backBtn.addEventListener('click', () => showView('menu'));
+
+    modal.querySelectorAll('[data-target]').forEach((btn) => {
+      btn.addEventListener('click', () => showView(btn.dataset.target));
+    });
+
+    // Show the chosen file name
+    modal.querySelectorAll('input[type="file"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        const label = input.closest('label').querySelector('[data-file-name]');
+        label.textContent = input.files.length ? input.files[0].name : 'No file selected';
+      });
+    });
+
+   
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+    let page = 1;
+ 
+
+    const text_title = document.getElementById('text-title');
+    const text_content = document.getElementById('text-content');
+    const text_submit = document.getElementById('text-submit');
+    const text_msg = document.getElementById('text-msg');
+    const image_file = document.getElementById('image-file');
+    const image_title = document.getElementById('image-title');
+    const image_submit = document.getElementById('image-submit');
+    const doc_file = document.getElementById('doc-file');
+    const doc_title = document.getElementById('doc-title');
+    const doc_submit = document.getElementById('doc-submit');
+    const image_msg = document.getElementById('image-msg');
+    const doc_msg = document.getElementById('doc-msg');
+    const credentials_title = document.getElementById('credentials-title');
+    const credentials_username = document.getElementById('credentials-username');
+    const credentials_password = document.getElementById('credentials-password');
+    const credentials_submit = document.getElementById('credentials-submit');
+    const credentials_msg = document.getElementById('credentials-msg');
+
+
+    showMoreBtn.addEventListener('click', async () => {
+      page++;
+       try{
+        if(page>10){
+          showMoreBtn.disabled = true;
+          showMoreBtn.textContent = 'No more data';
+          return;
+        }
+    const response = await fetch(`/dashboard/data2?page=${page}&type=${currentFilter}`);
+
+    const data = await response.json();
+
+  if (data.success === false) {
+  const message = el(
+    'p',
+    'col-span-full py-4 text-center text-sm text-red-500',
+    data.message || 'Failed to load data'
+  );
+
+  content.appendChild(message);
+  return;
+}
+
+ const newData = normalize(data);
+
+store.text.push(...newData.text);
+store.credentials.push(...newData.credentials);
+store.images.push(...newData.images);
+store.docs.push(...newData.docs);
+
+render();
+
+  } catch (err) {
+    content.replaceChildren(
+      el(
+        'p',
+        'col-span-full text-center text-red-500',
+        'Failed to load data'
+      )
+    );
+  }
+    });
+
+    text_submit.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!text_title.value || !text_content.value) {
+        text_msg.textContent = 'Please fill all fields';
+        setTimeout(() => {
+          text_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      if(text_title.value.length > 100) {
+        text_msg.textContent = 'Title is too long (max 100 characters)';
+        setTimeout(() => {
+          text_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      if(text_content.value.length > 10000) {
+        text_msg.textContent = 'Content is too long (max 10000 characters)';
+        setTimeout(() => {
+          text_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      const response = await fetch('/upload/text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: text_title.value, content: text_content.value })
+      });
+      const data = await response.json();
+      if (data.success) {
+        text_msg.classList.replace('text-red-800', 'text-green-800');
+        text_msg.textContent = 'Text uploaded successfully';
+        setTimeout(() => {
+          text_msg.textContent = '';
+          closeModal();
+          text_msg.classList.replace('text-green-800', 'text-red-800');
+        }, 1500);
+
+        text_title.value = '';
+        text_content.value = '';
+        loadData();
+      } else {
+        text_msg.textContent = data.message;
+        setTimeout(() => {
+          text_msg.textContent = '';
+        }, 4000);
+      }
+    });
+
+credentials_submit.addEventListener('click', async (e) => {
+      e.preventDefault();
+      if (!credentials_title.value || !credentials_username.value || !credentials_password.value) {
+        credentials_msg.textContent = 'Please fill all fields';
+        setTimeout(() => {
+          credentials_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      if(credentials_title.value.length > 100) {
+        credentials_msg.textContent = 'Title is too long (max 100 characters)';
+        setTimeout(() => {
+          credentials_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      if(credentials_password.value.length > 100 || credentials_username.value.length > 100) {
+        credentials_msg.textContent = 'Username or password is too long (max 100 characters)';
+        setTimeout(() => {
+          credentials_msg.textContent = '';
+        }, 4000);
+        return;
+      }
+      const response = await fetch('/upload/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: credentials_title.value, username: credentials_username.value, password: credentials_password.value })
+      });
+      const data = await response.json();
+      if (data.success) {
+        credentials_msg.classList.replace('text-red-800', 'text-green-800');
+        credentials_msg.textContent = 'Credentials uploaded successfully';
+        setTimeout(() => {
+          credentials_msg.textContent = '';
+          closeModal();
+          credentials_msg.classList.replace('text-green-800', 'text-red-800');
+        }, 1500);
+
+        credentials_title.value = '';
+        credentials_username.value = '';
+        credentials_password.value = '';
+        loadData();
+      } else {
+        credentials_msg.textContent = data.message;
+        setTimeout(() => {
+          credentials_msg.textContent = '';
+        }, 4000);
+      }
+    });
+
+
+// IMAGE FILE SELECTION
+image_file.addEventListener('change', () => {
+  const fileName = image_file.closest('label').querySelector('[data-file-name]');
+
+  if (image_file.files.length > 1) {
+    image_msg.textContent = 'Only 1 image can be selected';
+    image_file.value = '';
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (image_file.files.length === 0) {
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const file = image_file.files[0];
+
+  if (file.size > 2 * 1024 * 1024) {
+    image_msg.textContent = 'Image size must be 2 MB or less';
+    image_file.value = '';
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  image_msg.textContent = '';
+  fileName.textContent = file.name;
+});
+
+
+// DOCUMENT FILE SELECTION
+doc_file.addEventListener('change', () => {
+  const fileName = doc_file.closest('label').querySelector('[data-file-name]');
+
+  if (doc_file.files.length > 1) {
+    doc_msg.textContent = 'Only 1 document can be selected';
+    doc_file.value = '';
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (doc_file.files.length === 0) {
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const file = doc_file.files[0];
+
+  if (file.size > 1 * 1024 * 1024) {
+    doc_msg.textContent = 'Document size must be 1 MB or less';
+    doc_file.value = '';
+    fileName.textContent = 'No file selected';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  doc_msg.textContent = '';
+  fileName.textContent = file.name;
+});
+
+
+// IMAGE UPLOAD
+image_submit.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  if (!image_title.value || !image_file.files.length) {
+    image_msg.textContent = 'Please fill all fields';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (image_title.value.length > 100) {
+    image_msg.textContent = 'Title is too long (max 100 characters)';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const file = image_file.files[0];
+
+  if (image_file.files.length > 1) {
+    image_msg.textContent = 'Only 1 image can be selected';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (file.size > 2 * 1024 * 1024) {
+    image_msg.textContent = 'Image size must be 2 MB or less';
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append('title', image_title.value);
+  formData.append('file', file);
+
+  const response = await fetch('/upload/image', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    image_msg.classList.replace('text-red-800', 'text-green-800');
+    image_msg.textContent = 'Image uploaded successfully';
+
+    setTimeout(() => {
+      image_msg.textContent = '';
+      closeModal();
+      image_msg.classList.replace('text-green-800', 'text-red-800');
+    }, 1500);
+
+    image_title.value = '';
+    image_file.value = '';
+
+    image_file.closest('label').querySelector('[data-file-name]').textContent =
+      'No file selected';
+
+    loadData();
+
+  } else {
+    image_msg.textContent = data.message;
+    setTimeout(() => {
+      image_msg.textContent = '';
+    }, 4000);
+  }
+});
+
+
+// DOCUMENT UPLOAD
+doc_submit.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  if (!doc_title.value || !doc_file.files.length) {
+    doc_msg.textContent = 'Please fill all fields';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (doc_title.value.length > 100) {
+    doc_msg.textContent = 'Title is too long (max 100 characters)';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const file = doc_file.files[0];
+
+  if (doc_file.files.length > 1) {
+    doc_msg.textContent = 'Only 1 document can be selected';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  if (file.size > 1 * 1024 * 1024) {
+    doc_msg.textContent = 'Document size must be 1 MB or less';
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+    return;
+  }
+
+  const formData = new FormData();
+
+  formData.append('title', doc_title.value);
+  formData.append('file', file);
+
+  const response = await fetch('/upload/doc', {
+    method: 'POST',
+    body: formData
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    doc_msg.classList.replace('text-red-800', 'text-green-800');
+    doc_msg.textContent = 'Document uploaded successfully';
+
+    setTimeout(() => {
+      doc_msg.textContent = '';
+      closeModal();
+      doc_msg.classList.replace('text-green-800', 'text-red-800');
+    }, 1500);
+
+    doc_title.value = '';
+    doc_file.value = '';
+
+    doc_file.closest('label').querySelector('[data-file-name]').textContent =
+      'No file selected';
+
+    loadData();
+
+  } else {
+    doc_msg.textContent = data.message;
+    setTimeout(() => {
+      doc_msg.textContent = '';
+    }, 4000);
+  }
+});
+  </script>
+</body>
+</html>
