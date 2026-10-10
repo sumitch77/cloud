@@ -25,7 +25,9 @@ router.get("/", async (req, res) => {
   } res.redirect('/login');
 });
 
-
+router.get("/alltime", async (req, res) => {
+ return res.status(200).json({success:true});
+});
 
 module.exports = {
   router,
