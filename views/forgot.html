@@ -3,15 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Forgot Password</title>
+<title>Reset Password</title>
 <link rel="stylesheet" href="/output.css">
+
 <style>
-  :root { --sky-top:#a8d8f0; --sky-mid:#cfe9f8; --cloud:#ffffff; }
-  :root:not([data-theme="light"]) { }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) { --sky-top:#5b7f99; --sky-mid:#8fb4cc; --cloud:#e8f1f7; }
+  :root {
+    --sky-top:#a8d8f0;
+    --sky-mid:#cfe9f8;
+    --cloud:#ffffff;
   }
-  :root[data-theme="dark"] { --sky-top:#5b7f99; --sky-mid:#8fb4cc; --cloud:#e8f1f7; }
+
+  :root:not([data-theme="light"]) { }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --sky-top:#5b7f99;
+      --sky-mid:#8fb4cc;
+      --cloud:#e8f1f7;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --sky-top:#5b7f99;
+    --sky-mid:#8fb4cc;
+    --cloud:#e8f1f7;
+  }
+
   body {
     background:
       radial-gradient(60% 40% at 20% 100%, var(--cloud) 0%, transparent 60%),
@@ -21,75 +38,208 @@
   }
 </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center p-6 font-sans">
 
   <div class="w-96 max-w-full rounded-3xl bg-linear-to-b from-cyan-50 to-white p-6 shadow-2xl shadow-sky-900/10 ring-1 ring-white/60">
 
+    <h1 class="mt-5 text-center text-2xl font-bold tracking-tight text-gray-900">
+      Reset Password
+    </h1>
 
-
-    <h1 class="mt-5 text-center text-2xl font-bold tracking-tight text-gray-900">Forgot Password</h1>
+    <p class="mt-2 text-center text-sm text-gray-500">
+      Enter your new password below.
+    </p>
 
     <div class="mt-6 space-y-3">
+
+      <!-- New password -->
       <div class="flex h-12 items-center gap-3 rounded-xl bg-gray-100 px-4">
-        <svg class="size-4 shrink-0 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        <input type="text" id="email" placeholder="Enter Email" class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none">
+
+        <svg class="size-4 shrink-0 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"/>
+        </svg>
+
+        <input
+          id="password"
+          type="password"
+          placeholder="New password"
+          class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none"
+        >
+
+        <button
+          id="togglePassword"
+          type="button"
+          class="shrink-0 text-gray-400 hover:text-gray-600"
+        >
+          <svg
+            class="size-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            viewBox="0 0 24 24"
+          >
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+
       </div>
 
-      
-            <div id="message" class=" mt-2 mb-2 h-1.5 text-red-800"></div>
+      <!-- Confirm password -->
+      <div class="flex h-12 items-center gap-3 rounded-xl bg-gray-100 px-4">
+
+        <svg class="size-4 shrink-0 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 24 24">
+          <path d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z"/>
+        </svg>
+
+        <input
+          id="confirmPassword"
+          type="password"
+          placeholder="Confirm new password"
+          class="w-full bg-transparent text-sm text-gray-800 placeholder-gray-400 outline-none"
+        >
+
+        <button
+          id="toggleConfirmPassword"
+          type="button"
+          class="shrink-0 text-gray-400 hover:text-gray-600"
+        >
+          <svg
+            class="size-5"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            viewBox="0 0 24 24"
+          >
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <div id="message" class="mt-2 mb-2 h-5 text-center text-sm text-red-800"></div>
 
     </div>
 
-    <button id="login" class="mt-4 h-11 w-full rounded-xl bg-gray-900 text-sm font-semibold text-white transition hover:bg-gray-800">Send Login Link</button>
+    <button
+      id="reset"
+      class="mt-4 h-11 w-full rounded-xl bg-gray-900 text-sm font-semibold text-white transition hover:bg-gray-800"
+    >
+      Reset Password
+    </button>
 
-       
-        <p class="s-8 text-gray-900 mt-4">  Don't have a account ?    <a class="text-blue-500 underline" href="/signup">
-     Signup Here
-      </a></p>
-   
-  
+    <p class="mt-5 text-center text-xs text-gray-500">
+      Your password should be at least 6 characters.
+    </p>
 
   </div>
 
+
 <script>
-  const email = document.getElementById('email');
-  const login = document.getElementById('login');
-  const msg = document.getElementById('message');
+
+const password = document.getElementById('password');
+const confirmPassword = document.getElementById('confirmPassword');
+const reset = document.getElementById('reset');
+const msg = document.getElementById('message');
+
+const togglePassword = document.getElementById('togglePassword');
+const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+
+const token = new URLSearchParams(window.location.search).get('token');
 
 
-  login.addEventListener('click',async(e)=>{
-    e.preventDefault();
+togglePassword.addEventListener('click', () => {
+  password.type = password.type === 'password' ? 'text' : 'password';
+});
 
-    if(!email.value){
-      msg.innerText = 'Please Fill all fields';
-      setTimeout(()=>{
-        msg.innerText = '';
-      },4000)
-      return;
-    }
 
-        const response = await fetch('/forgot', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({email: email.value})
-        });
-        const data = await response.json();
-        if(data.success){
-          msg.classList.replace('text-red-800','text-green-800');
-msg.innerText = data.message;
-setTimeout(()=>{
-  msg.innerText = '';
-  msg.classList.replace('text-green-800','text-red-800');
-},4000)
-          
-        }else{
-          msg.innerText = data.message;
-          setTimeout(()=>{
-            msg.innerText = '';
-          },4000)
-        }
-        
+toggleConfirmPassword.addEventListener('click', () => {
+  confirmPassword.type =
+    confirmPassword.type === 'password' ? 'text' : 'password';
+});
+
+
+reset.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  if (!token) {
+    msg.innerText = 'Invalid reset link';
+    return;
+  }
+
+  if (!password.value || !confirmPassword.value) {
+    msg.innerText = 'Please fill all fields';
+
+    setTimeout(() => {
+      msg.innerText = '';
+    }, 4000);
+
+    return;
+  }
+
+  if (password.value.length < 6) {
+    msg.innerText = 'Password should be more than 6 characters';
+
+    setTimeout(() => {
+      msg.innerText = '';
+    }, 4000);
+
+    return;
+  }
+
+  if (password.value !== confirmPassword.value) {
+    msg.innerText = 'Passwords do not match';
+
+    setTimeout(() => {
+      msg.innerText = '';
+    }, 4000);
+
+    return;
+  }
+
+  const response = await fetch('/resetpassword', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      token: token,
+      password: password.value
+    })
   });
+
+  const data = await response.json();
+
+  if (data.success) {
+
+    msg.classList.replace('text-red-800', 'text-green-800');
+    msg.innerText = 'Password reset successfully';
+
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 1200);
+
+  } else {
+
+    msg.innerText = data.message;
+
+    setTimeout(() => {
+      msg.innerText = '';
+    }, 4000);
+
+  }
+
+});
+
 </script>
+
 </body>
 </html>

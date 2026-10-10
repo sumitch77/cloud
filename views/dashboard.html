@@ -32,8 +32,8 @@
           </svg>
           Private &amp; secure
         </div>
-        <button type="button" class="rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
-          Login
+        <button type="button" id="loginButton" class="rounded-lg border hidden cursor:pointer border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
+         <a href="/login"> Login</a>
         </button>
         <a href="/logout" class="rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 transition hover:bg-neutral-300 active:bg-neutral-400">
           Logout
@@ -68,10 +68,11 @@
 
     <!-- Filters -->
     <section id="filters" class="mt-5 flex flex-wrap gap-2">
-      <button type="button" data-filter="public" class="rounded-lg border mr-4 border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Public</button>
+      <button type="button" data-filter="public" class="rounded-lg mr-8  hover:cursor-pointer bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-400 active:bg-blue-600">Public</button>
+
+            <button type="button" data-filter="all" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">All</button>
 
       <button type="button" data-filter="text" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Text</button>
-      <button type="button" data-filter="all" class="rounded-lg   hover:cursor-pointer bg-blue-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-400 active:bg-blue-600">All</button>
       <button type="button" data-filter="credentials" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Credentials</button>
       <button type="button" data-filter="images" class="rounded-lg border hover:cursor-pointer  border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Images</button>
       <button type="button" data-filter="docs" class="rounded-lg  hover:cursor-pointer border border-neutral-800 bg-neutral-900 px-4 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">Docs</button>
@@ -94,6 +95,7 @@
     <section id="content" class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"></section>
 
   </main>
+  <p id="loadError" class="hidden text-center text-sm text-red-500"></p>
             <button type="button" id="showMore" class="rounded-lg hidden ml-8 mt-2 hover:cursor-pointer hover:bg-blue-500 px-4 py-2 text-sm  border-neutral-800 bg-neutral-900 font-medium text-white transition active:bg-blue-700">Show more</button>
 
   <!-- Upload modal (one box, switches between views) -->
@@ -130,6 +132,7 @@
           <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/15 text-amber-400">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4" /><path d="m11 12 9-9m-3 3 3 3m-6-3 2 2" /></svg>
           </span>
+          <p class="modalmessage text-sm text-red-600 hidden">Login to upload credentials</p>
           <span class="text-base font-medium">Upload credentials</span>
         </button>
 
@@ -137,6 +140,8 @@
           <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/15 text-emerald-400">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="9" cy="10" r="2" /><path d="m21 16-5-5-9 9" /></svg>
           </span>
+                    <p class="modalmessage text-sm text-red-600 hidden">Login to upload Images</p>
+
           <span class="text-base font-medium">Upload images</span>
         </button>
 
@@ -144,6 +149,8 @@
           <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/15 text-violet-400">
             <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5z" /><path d="M14 3v5h5M9 13h6m-6 4h6" /></svg>
           </span>
+                    <p class="modalmessage text-sm text-red-600 hidden">Login to upload Docs</p>
+
           <span class="text-base font-medium">Upload docs</span>
         </button>
       </div>
@@ -257,28 +264,40 @@
 
     </div>
   </div>
-
-  <script>
-
+<script>
 const content = document.getElementById('content');
 const filterBar = document.getElementById('filters');
-    const showMoreBtn = document.getElementById('showMore');
-
-const LIMIT = 12;
+const showMoreBtn = document.getElementById('showMore');
+const login = document.getElementById('loginButton');
+const loadError = document.getElementById('loadError');
+const modalmessage = document.getElementsByClassName('modalmessage');
+const text_msg = document.getElementById('text-msg');
+const image_msg = document.getElementById('image-msg');
+const doc_msg = document.getElementById('doc-msg');
+const credentials_msg = document.getElementById('credentials-msg');
 
 const ACTIVE = ['bg-blue-500', 'text-white', 'hover:bg-blue-400', 'active:bg-blue-600'];
 const INACTIVE = ['border', 'border-neutral-800', 'bg-neutral-900', 'text-neutral-300', 'hover:bg-neutral-800', 'hover:text-white', 'active:bg-neutral-700'];
 
+const CARD = 'flex flex-col gap-4 min-h-0 rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm transition hover:border-neutral-700';
+
 let store = { text: [], credentials: [], images: [], docs: [] };
-let currentFilter = 'all';
+let currentFilter = 'public';
+let page = 1;
+let loading = false;
+
+
+/* ---------- Helpers ---------- */
 
 function normalize(data) {
   const src = data.data || data;
-  const out = {};
-  ['text', 'credentials', 'images', 'docs'].forEach((key) => {
-    out[key] = Array.isArray(src[key]) ? src[key] : [];
-  });
-  return out;
+
+  return {
+    text: Array.isArray(src.text) ? src.text : [],
+    credentials: Array.isArray(src.credentials) ? src.credentials : [],
+    images: Array.isArray(src.images) ? src.images : [],
+    docs: Array.isArray(src.docs) ? src.docs : []
+  };
 }
 
 function el(tag, cls, text) {
@@ -300,8 +319,19 @@ function formatDate(iso) {
   });
 }
 
-const CARD = 'flex flex-col gap-4 rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-sm transition hover:border-neutral-700';
+function byLatest(a, b) {
+  return new Date(b.created_at) - new Date(a.created_at);
+}
 
+// Cloudinary helpers: insert transformations right after "/upload/"
+function cloudinary(url, transform) {
+  return url && url.includes('/upload/')
+    ? url.replace('/upload/', '/upload/' + transform + '/')
+    : url;
+}
+
+
+/* ---------- Cards ---------- */
 
 // Copy button
 function copyButton(value) {
@@ -316,9 +346,7 @@ function copyButton(value) {
   btn.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(value || '');
-
       btn.textContent = 'Copied';
-
       setTimeout(() => {
         btn.textContent = 'Copy';
       }, 1200);
@@ -330,27 +358,16 @@ function copyButton(value) {
   return btn;
 }
 
-
 // Card header with optional copy button
 function cardHeader(item, copyValue = null) {
   const header = el('div', 'flex items-start justify-between gap-3 min-w-0');
-
   const box = el('div', 'min-w-0');
 
   box.appendChild(
-    el(
-      'h3',
-      'truncate text-base font-bold text-neutral-100',
-      item.title || 'Untitled'
-    )
+    el('h3', 'truncate text-base font-bold text-neutral-100', item.title || 'Untitled')
   );
-
   box.appendChild(
-    el(
-      'p',
-      'mt-1 text-xs text-neutral-500',
-      formatDate(item.created_at)
-    )
+    el('p', 'mt-1 text-xs text-neutral-500', formatDate(item.created_at))
   );
 
   header.appendChild(box);
@@ -362,25 +379,20 @@ function cardHeader(item, copyValue = null) {
   return header;
 }
 
-
 function textCard(item) {
   const card = el('article', CARD);
 
-  card.appendChild(
-    cardHeader(item, item.value || '')
-  );
-
+  card.appendChild(cardHeader(item, item.value || ''));
   card.appendChild(
     el(
       'p',
-      'line-clamp-4 whitespace-pre-line break-words text-sm text-neutral-300',
+      'mt-3 max-h-20 overflow-y-auto whitespace-pre-wrap break-words pr-1 text-sm text-neutral-300',
       item.value || ''
     )
   );
 
   return card;
 }
-
 
 function fieldRow(label, valueNode, copyValue = null) {
   const row = el(
@@ -390,12 +402,8 @@ function fieldRow(label, valueNode, copyValue = null) {
 
   const left = el('div', 'min-w-0');
 
-  left.appendChild(
-    el('p', 'text-xs text-neutral-500', label)
-  );
-
+  left.appendChild(el('p', 'text-xs text-neutral-500', label));
   left.appendChild(valueNode);
-
   row.appendChild(left);
 
   if (copyValue !== null) {
@@ -405,44 +413,27 @@ function fieldRow(label, valueNode, copyValue = null) {
   return { row, left };
 }
 
-
 function credentialCard(item) {
   const card = el('article', CARD);
 
   // Credential card does not have a copy button in the title
   card.appendChild(cardHeader(item));
 
-
   // Username
   const username = item.username || item.email || '';
 
   const usernameRow = fieldRow(
     'Username / email',
-    el(
-      'p',
-      'truncate text-sm text-neutral-200',
-      username
-    ),
+    el('p', 'truncate text-sm text-neutral-200', username),
     username
   );
 
   card.appendChild(usernameRow.row);
 
-
   // Password
   const password = item.password || '';
-
-  const pass = el(
-    'p',
-    'truncate text-sm text-neutral-200',
-    '••••••••'
-  );
-
-  const passwordRow = fieldRow(
-    'Password',
-    pass,
-    password
-  );
+  const pass = el('p', 'truncate text-sm text-neutral-200', '••••••••');
+  const passwordRow = fieldRow('Password', pass, password);
 
   const toggle = el(
     'button',
@@ -456,31 +447,15 @@ function credentialCard(item) {
 
   toggle.addEventListener('click', () => {
     shown = !shown;
-
-    pass.textContent = shown
-      ? password
-      : '••••••••';
-
-    toggle.textContent = shown
-      ? 'Hide'
-      : 'Show';
+    pass.textContent = shown ? password : '••••••••';
+    toggle.textContent = shown ? 'Hide' : 'Show';
   });
 
   passwordRow.row.appendChild(toggle);
-
   card.appendChild(passwordRow.row);
 
   return card;
 }
-
-
-// Cloudinary helpers: insert transformations right after "/upload/"
-function cloudinary(url, transform) {
-  return url && url.includes('/upload/')
-    ? url.replace('/upload/', '/upload/' + transform + '/')
-    : url;
-}
-
 
 function imageCard(item) {
   const card = el('article', CARD);
@@ -496,11 +471,7 @@ function imageCard(item) {
     'aspect-video w-full rounded-lg bg-neutral-950 object-cover'
   );
 
-  img.src = cloudinary(
-    item.url,
-    'w_600,ar_16:9,c_fill,f_auto,q_auto'
-  );
-
+  img.src = cloudinary(item.url, 'w_600,ar_16:9,c_fill,f_auto,q_auto');
   img.alt = item.title || '';
   img.loading = 'lazy';
 
@@ -508,13 +479,10 @@ function imageCard(item) {
   card.appendChild(link);
 
   // Title + Copy URL button
-  card.appendChild(
-    cardHeader(item, item.url)
-  );
+  card.appendChild(cardHeader(item, item.url));
 
   return card;
 }
-
 
 function docCard(item) {
   const card = el('article', CARD);
@@ -532,28 +500,19 @@ function docCard(item) {
   top.appendChild(icon);
 
   // Title + Copy URL button
-  top.appendChild(
-    cardHeader(item, item.url)
-  );
+  top.appendChild(cardHeader(item, item.url));
 
   card.appendChild(top);
 
-
-  const ext = (item.url || '')
-    .split('?')[0]
-    .split('.')
-    .pop();
+  const ext = (item.url || '').split('?')[0].split('.').pop();
 
   const badge = el(
     'span',
     'w-fit rounded-md bg-neutral-800 px-2 py-1 text-xs font-medium text-neutral-300',
-    ext && ext.length <= 5
-      ? ext.toUpperCase()
-      : 'FILE'
+    ext && ext.length <= 5 ? ext.toUpperCase() : 'FILE'
   );
 
   card.appendChild(badge);
-
 
   const actions = el('div', 'flex gap-2');
 
@@ -567,7 +526,6 @@ function docCard(item) {
   view.target = '_blank';
   view.rel = 'noopener';
 
-
   const download = el(
     'a',
     'flex-1 rounded-lg border border-neutral-700 px-4 py-2 text-center text-sm font-medium text-neutral-200 transition hover:bg-neutral-800 active:bg-neutral-700',
@@ -576,15 +534,12 @@ function docCard(item) {
 
   download.href = cloudinary(item.url, 'fl_attachment');
 
-
   actions.appendChild(view);
   actions.appendChild(download);
-
   card.appendChild(actions);
 
   return card;
 }
-
 
 const builders = {
   text: textCard,
@@ -594,40 +549,26 @@ const builders = {
 };
 
 
-function byLatest(a, b) {
-  return new Date(b.created_at) - new Date(a.created_at);
-}
-
+/* ---------- Rendering & data loading ---------- */
 
 function render() {
   content.replaceChildren();
 
-  if (currentFilter === 'public') return;
+  let items = [];
 
-  let items;
-
-  if (currentFilter === 'all') {
-    items = [];
-
+  if (currentFilter === 'all' || currentFilter === 'public' || currentFilter === 'private') {
     Object.keys(builders).forEach((type) => {
       store[type].forEach((item) => {
         items.push({ type, item });
       });
     });
-
-    items.sort((a, b) => byLatest(a.item, b.item));
-
-  } else {
-    items = store[currentFilter].map((item) => ({
-      type: currentFilter,
-      item
-    }));
-
-    items.sort((a, b) => byLatest(a.item, b.item));
+  } else if (builders[currentFilter]) {
+    store[currentFilter].forEach((item) => {
+      items.push({ type: currentFilter, item });
+    });
   }
 
-  items = items.slice(0, LIMIT);
-
+  items.sort((a, b) => byLatest(a.item, b.item));
 
   if (!items.length) {
     content.appendChild(
@@ -637,300 +578,341 @@ function render() {
         'Nothing uploaded yet.'
       )
     );
-
     return;
   }
 
-
   items.forEach(({ type, item }) => {
-    content.appendChild(
-      builders[type](item)
-    );
+    content.appendChild(builders[type](item));
   });
 }
 
+async function loadData(append = false) {
+  if (loading) return;
+  loadError.innerText = '';
 
-function setFilter(name) {
-  currentFilter = name;
+  loading = true;
+  showMoreBtn.disabled = true;
 
-  filterBar.querySelectorAll('[data-filter]').forEach((btn) => {
-    const on = btn.dataset.filter === name;
-
-    btn.classList.remove(
-      ...(on ? INACTIVE : ACTIVE)
-    );
-
-    btn.classList.add(
-      ...(on ? ACTIVE : INACTIVE)
-    );
-  });
-
-  render();
-}
-
-
-filterBar.addEventListener('click', (e) => {
-  const btn = e.target.closest('[data-filter]');
-
-  if (btn) {
-    setFilter(btn.dataset.filter);
-  }
-});
-
-
-async function loadData() {
   try {
-    const response = await fetch('/dashboard/data?page=1&type=all');
+    const url = currentFilter === 'public'
+      ? `/dashboard/data?page=${page}&type=public`
+      : `/dashboard/data2?page=${page}&type=${encodeURIComponent(currentFilter)}`;
+
+    const response = await fetch(url);
+
 
     const data = await response.json();
 
-    if (data.success === false) {
-      throw new Error('failed');
+       if (data.success === false) {
+        content.innerHTML = '';
+        loadError.classList.remove('hidden');
+       
+        loadError.innerText = data.message;
+        
+      return;
     }
 
-    store = normalize(data);
+    if(data.data.text.length === 0 && data.data.credentials.length === 0 && data.data.images.length === 0 && data.data.docs.length === 0) {
+      showMoreBtn.classList.add('hidden');
+       loadError.classList.remove('hidden');
+        loadError.innerText = 'No more data available';
+        setTimeout(()=>{
+          loadError.innerText = '';
+        },4000)
+      return;
+    }
+if(!data.login){
+     credentials_msg.innerText = 'login to upload credentials';
+        image_msg.innerText = 'login to upload Images';
+        doc_msg.innerText = 'login to upload Docs';
+Array.from(modalmessage).forEach(element => {
+    element.classList.remove('hidden');
+});
+}
+    if (data.login === true) {
+      login.classList.remove('hidden');
+Array.from(modalmessage).forEach(element => {
+    element.classList.add('hidden');
+});    credentials_msg.innerText = '';
+        image_msg.innerText = '';
+        doc_msg.innerText = '';
+      login.replaceChildren();
+
+      const user = el(
+        'div',
+        'flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm font-medium text-neutral-200'
+      );
+
+      const avatar = el(
+        'div',
+        'flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/15 text-xs font-semibold text-blue-400',
+        (data.username || '?').charAt(0).toUpperCase()
+      );
+
+      const username = el('span', '', data.username || 'User');
+
+      user.append(avatar, username);
+      login.appendChild(user);
+    } else if (data.login === false) {
+      login.classList.remove('hidden');
+    }
+
+    const result = normalize(data);
+
+    if (!append) {
+      store = result;
+    } else {
+      Object.keys(store).forEach((type) => {
+        store[type].push(...result[type]);
+      });
+    }
 
     render();
-    showMoreBtn.classList.remove('hidden');
 
+    showMoreBtn.classList.remove('hidden');
+    showMoreBtn.textContent = 'Show more';
   } catch (err) {
-    content.replaceChildren(
-      el(
-        'p',
-        'col-span-full text-center text-red-500',
-        'Failed to load data'
-      )
-    );
+    console.error(err);
+
+    if (append) {
+      page--; // roll back so the next click retries the same page
+    } else {
+      content.replaceChildren(
+        el(
+          'p',
+          'col-span-full py-12 text-center text-sm text-red-500',
+          'Failed to load data.'
+        )
+      );
+    }
+  } finally {
+    loading = false;
+    showMoreBtn.disabled = false;
   }
 }
 
+// Reload from the first page (used after filter change or upload)
+function reload() {
+  page = 1;
+  loadData();
+}
+
+function setFilter(name) {
+  currentFilter = name;
+  page = 1;
+
+  store = { text: [], credentials: [], images: [], docs: [] };
+
+  filterBar.querySelectorAll('[data-filter]').forEach((btn) => {
+    const active = btn.dataset.filter === name;
+
+    btn.classList.remove(...(active ? INACTIVE : ACTIVE));
+    btn.classList.add(...(active ? ACTIVE : INACTIVE));
+  });
+
+  loadData();
+}
+
+filterBar.addEventListener('click', (event) => {
+  const btn = event.target.closest('[data-filter]');
+
+  if (!btn || !filterBar.contains(btn)) return;
+
+  const filter = btn.dataset.filter;
+  if (!filter || filter === currentFilter) return;
+
+  setFilter(filter);
+});
+
+showMoreBtn.addEventListener('click', async () => {
+  if (loading) return;
+
+  page++;
+  await loadData(true);
+});
 
 loadData();
 
 
+/* ---------- Upload modal ---------- */
 
+const modal = document.getElementById('upload-modal');
+const title = document.getElementById('upload-title');
+const backBtn = document.getElementById('back-upload');
+const views = modal.querySelectorAll('[data-view]');
 
-    /* ---------- Upload modal ---------- */
+const titles = {
+  menu: 'Upload',
+  text: 'Upload text',
+  credentials: 'Upload credentials',
+  images: 'Upload images',
+  docs: 'Upload docs'
+};
 
-    const modal = document.getElementById('upload-modal');
-    const title = document.getElementById('upload-title');
-    const backBtn = document.getElementById('back-upload');
-    const views = modal.querySelectorAll('[data-view]');
-
-    const titles = {
-      menu: 'Upload',
-      text: 'Upload text',
-      credentials: 'Upload credentials',
-      images: 'Upload images',
-      docs: 'Upload docs'
-    };
-
-    function showView(name) {
-      views.forEach((view) => {
-        const active = view.dataset.view === name;
-        view.classList.toggle('hidden', !active);
-        view.classList.toggle(name === 'menu' ? 'grid' : 'flex', active);
-        if (!active) view.classList.remove('flex', 'grid');
-      });
-      title.textContent = titles[name];
-      backBtn.classList.toggle('hidden', name === 'menu');
-      backBtn.classList.toggle('flex', name !== 'menu');
-    }
-
-    function openModal() {
-      showView('menu');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-    }
-
-    function closeModal() {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    }
-
-    document.getElementById('open-upload').addEventListener('click', openModal);
-    document.getElementById('close-upload').addEventListener('click', closeModal);
-    backBtn.addEventListener('click', () => showView('menu'));
-
-    modal.querySelectorAll('[data-target]').forEach((btn) => {
-      btn.addEventListener('click', () => showView(btn.dataset.target));
-    });
-
-    // Show the chosen file name
-    modal.querySelectorAll('input[type="file"]').forEach((input) => {
-      input.addEventListener('change', () => {
-        const label = input.closest('label').querySelector('[data-file-name]');
-        label.textContent = input.files.length ? input.files[0].name : 'No file selected';
-      });
-    });
-
-   
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-    let page = 1;
- 
-
-    const text_title = document.getElementById('text-title');
-    const text_content = document.getElementById('text-content');
-    const text_submit = document.getElementById('text-submit');
-    const text_msg = document.getElementById('text-msg');
-    const image_file = document.getElementById('image-file');
-    const image_title = document.getElementById('image-title');
-    const image_submit = document.getElementById('image-submit');
-    const doc_file = document.getElementById('doc-file');
-    const doc_title = document.getElementById('doc-title');
-    const doc_submit = document.getElementById('doc-submit');
-    const image_msg = document.getElementById('image-msg');
-    const doc_msg = document.getElementById('doc-msg');
-    const credentials_title = document.getElementById('credentials-title');
-    const credentials_username = document.getElementById('credentials-username');
-    const credentials_password = document.getElementById('credentials-password');
-    const credentials_submit = document.getElementById('credentials-submit');
-    const credentials_msg = document.getElementById('credentials-msg');
-
-
-    showMoreBtn.addEventListener('click', async () => {
-      page++;
-       try{
-        if(page>10){
-          showMoreBtn.disabled = true;
-          showMoreBtn.textContent = 'No more data';
-          return;
-        }
-    const response = await fetch(`/dashboard/data2?page=${page}&type=${currentFilter}`);
-
-    const data = await response.json();
-
-  if (data.success === false) {
-  const message = el(
-    'p',
-    'col-span-full py-4 text-center text-sm text-red-500',
-    data.message || 'Failed to load data'
-  );
-
-  content.appendChild(message);
-  return;
+function showView(name) {
+  views.forEach((view) => {
+    const active = view.dataset.view === name;
+    view.classList.toggle('hidden', !active);
+    view.classList.toggle(name === 'menu' ? 'grid' : 'flex', active);
+    if (!active) view.classList.remove('flex', 'grid');
+  });
+  title.textContent = titles[name];
+  backBtn.classList.toggle('hidden', name === 'menu');
+  backBtn.classList.toggle('flex', name !== 'menu');
 }
 
- const newData = normalize(data);
+function openModal() {
+  showView('menu');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+}
 
-store.text.push(...newData.text);
-store.credentials.push(...newData.credentials);
-store.images.push(...newData.images);
-store.docs.push(...newData.docs);
+function closeModal() {
+  modal.classList.add('hidden');
+  modal.classList.remove('flex');
+}
 
-render();
+document.getElementById('open-upload').addEventListener('click', openModal);
+document.getElementById('close-upload').addEventListener('click', closeModal);
+backBtn.addEventListener('click', () => showView('menu'));
 
-  } catch (err) {
-    content.replaceChildren(
-      el(
-        'p',
-        'col-span-full text-center text-red-500',
-        'Failed to load data'
-      )
-    );
+modal.querySelectorAll('[data-target]').forEach((btn) => {
+  btn.addEventListener('click', () => showView(btn.dataset.target));
+});
+
+modal.addEventListener('click', (e) => {
+  if (e.target === modal) closeModal();
+});
+
+const text_title = document.getElementById('text-title');
+const text_content = document.getElementById('text-content');
+const text_submit = document.getElementById('text-submit');
+const image_file = document.getElementById('image-file');
+const image_title = document.getElementById('image-title');
+const image_submit = document.getElementById('image-submit');
+const doc_file = document.getElementById('doc-file');
+const doc_title = document.getElementById('doc-title');
+const doc_submit = document.getElementById('doc-submit');
+const credentials_title = document.getElementById('credentials-title');
+const credentials_username = document.getElementById('credentials-username');
+const credentials_password = document.getElementById('credentials-password');
+const credentials_submit = document.getElementById('credentials-submit');
+
+
+// TEXT UPLOAD
+text_submit.addEventListener('click', async (e) => {
+  e.preventDefault();
+  text_submit.disabled = true;
+  setTimeout(() => {
+      text_submit.disabled = false;
+
+
+  }, 1500);
+
+  if (!text_title.value || !text_content.value) {
+    text_msg.textContent = 'Please fill all fields';
+    setTimeout(() => { text_msg.textContent = ''; }, 4000);
+    return;
   }
-    });
 
-    text_submit.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!text_title.value || !text_content.value) {
-        text_msg.textContent = 'Please fill all fields';
-        setTimeout(() => {
-          text_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      if(text_title.value.length > 100) {
-        text_msg.textContent = 'Title is too long (max 100 characters)';
-        setTimeout(() => {
-          text_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      if(text_content.value.length > 10000) {
-        text_msg.textContent = 'Content is too long (max 10000 characters)';
-        setTimeout(() => {
-          text_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      const response = await fetch('/upload/text', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: text_title.value, content: text_content.value })
-      });
-      const data = await response.json();
-      if (data.success) {
-        text_msg.classList.replace('text-red-800', 'text-green-800');
-        text_msg.textContent = 'Text uploaded successfully';
-        setTimeout(() => {
-          text_msg.textContent = '';
-          closeModal();
-          text_msg.classList.replace('text-green-800', 'text-red-800');
-        }, 1500);
+  if (text_title.value.length > 100) {
+    text_msg.textContent = 'Title is too long (max 100 characters)';
+    setTimeout(() => { text_msg.textContent = ''; }, 4000);
+    return;
+  }
 
-        text_title.value = '';
-        text_content.value = '';
-        loadData();
-      } else {
-        text_msg.textContent = data.message;
-        setTimeout(() => {
-          text_msg.textContent = '';
-        }, 4000);
-      }
-    });
+  if (text_content.value.length > 10000) {
+    text_msg.textContent = 'Content is too long (max 10000 characters)';
+    setTimeout(() => { text_msg.textContent = ''; }, 4000);
+    return;
+  }
 
+  const response = await fetch('/upload/text', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title: text_title.value, content: text_content.value })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    text_msg.classList.replace('text-red-800', 'text-green-800');
+    text_msg.textContent = 'Text uploaded successfully';
+
+    setTimeout(() => {
+      text_msg.textContent = '';
+      closeModal();
+      text_msg.classList.replace('text-green-800', 'text-red-800');
+    }, 1500);
+
+    text_title.value = '';
+    text_content.value = '';
+    reload();
+  } else {
+    text_msg.textContent = data.message;
+    setTimeout(() => { text_msg.textContent = ''; }, 4000);
+  }
+});
+
+
+// CREDENTIALS UPLOAD
 credentials_submit.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!credentials_title.value || !credentials_username.value || !credentials_password.value) {
-        credentials_msg.textContent = 'Please fill all fields';
-        setTimeout(() => {
-          credentials_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      if(credentials_title.value.length > 100) {
-        credentials_msg.textContent = 'Title is too long (max 100 characters)';
-        setTimeout(() => {
-          credentials_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      if(credentials_password.value.length > 100 || credentials_username.value.length > 100) {
-        credentials_msg.textContent = 'Username or password is too long (max 100 characters)';
-        setTimeout(() => {
-          credentials_msg.textContent = '';
-        }, 4000);
-        return;
-      }
-      const response = await fetch('/upload/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: credentials_title.value, username: credentials_username.value, password: credentials_password.value })
-      });
-      const data = await response.json();
-      if (data.success) {
-        credentials_msg.classList.replace('text-red-800', 'text-green-800');
-        credentials_msg.textContent = 'Credentials uploaded successfully';
-        setTimeout(() => {
-          credentials_msg.textContent = '';
-          closeModal();
-          credentials_msg.classList.replace('text-green-800', 'text-red-800');
-        }, 1500);
+  e.preventDefault();
+   credentials_submit.disabled = true;
+  setTimeout(() => {
+      credentials_submit.disabled = false;
 
-        credentials_title.value = '';
-        credentials_username.value = '';
-        credentials_password.value = '';
-        loadData();
-      } else {
-        credentials_msg.textContent = data.message;
-        setTimeout(() => {
-          credentials_msg.textContent = '';
-        }, 4000);
-      }
-    });
+  }, 2000);
+
+  if (!credentials_title.value || !credentials_username.value || !credentials_password.value) {
+    credentials_msg.textContent = 'Please fill all fields';
+    setTimeout(() => { credentials_msg.textContent = ''; }, 4000);
+    return;
+  }
+
+  if (credentials_title.value.length > 100) {
+    credentials_msg.textContent = 'Title is too long (max 100 characters)';
+    setTimeout(() => { credentials_msg.textContent = ''; }, 4000);
+    return;
+  }
+
+  if (credentials_password.value.length > 100 || credentials_username.value.length > 100) {
+    credentials_msg.textContent = 'Username or password is too long (max 100 characters)';
+    setTimeout(() => { credentials_msg.textContent = ''; }, 4000);
+    return;
+  }
+
+  const response = await fetch('/upload/credentials', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      title: credentials_title.value,
+      username: credentials_username.value,
+      password: credentials_password.value
+    })
+  });
+
+  const data = await response.json();
+
+  if (data.success) {
+    credentials_msg.classList.replace('text-red-800', 'text-green-800');
+    credentials_msg.textContent = 'Credentials uploaded successfully';
+
+    setTimeout(() => {
+      credentials_msg.textContent = '';
+      closeModal();
+      credentials_msg.classList.replace('text-green-800', 'text-red-800');
+    }, 1500);
+
+    credentials_title.value = '';
+    credentials_username.value = '';
+    credentials_password.value = '';
+    reload();
+  } else {
+    credentials_msg.textContent = data.message;
+    setTimeout(() => { credentials_msg.textContent = ''; }, 4000);
+  }
+});
 
 
 // IMAGE FILE SELECTION
@@ -941,17 +923,12 @@ image_file.addEventListener('change', () => {
     image_msg.textContent = 'Only 1 image can be selected';
     image_file.value = '';
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }
 
   if (image_file.files.length === 0) {
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
     return;
   }
 
@@ -961,9 +938,7 @@ image_file.addEventListener('change', () => {
     image_msg.textContent = 'Image size must be 2 MB or less';
     image_file.value = '';
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }
 
@@ -980,17 +955,12 @@ doc_file.addEventListener('change', () => {
     doc_msg.textContent = 'Only 1 document can be selected';
     doc_file.value = '';
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
     return;
   }
 
   if (doc_file.files.length === 0) {
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
     return;
   }
 
@@ -1000,9 +970,7 @@ doc_file.addEventListener('change', () => {
     doc_msg.textContent = 'Document size must be 1 MB or less';
     doc_file.value = '';
     fileName.textContent = 'No file selected';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
     return;
   }
 
@@ -1014,38 +982,35 @@ doc_file.addEventListener('change', () => {
 // IMAGE UPLOAD
 image_submit.addEventListener('click', async (e) => {
   e.preventDefault();
+   image_submit.disabled = true;
+  setTimeout(() => {
+      image_submit.disabled = false;
+
+  }, 2000);
 
   if (!image_title.value || !image_file.files.length) {
     image_msg.textContent = 'Please fill all fields';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }
 
   if (image_title.value.length > 100) {
     image_msg.textContent = 'Title is too long (max 100 characters)';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
+    return;
+  }
+
+  if (image_file.files.length > 1) {
+    image_msg.textContent = 'Only 1 image can be selected';
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }
 
   const file = image_file.files[0];
 
-  if (image_file.files.length > 1) {
-    image_msg.textContent = 'Only 1 image can be selected';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
-    return;
-  }
-
-  if (file.size > 2 * 1024 * 1024) {
-    image_msg.textContent = 'Image size must be 2 MB or less';
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+  if (file.size > 4 * 1024 * 1024) {
+    image_msg.textContent = 'Image size must be 4 MB or less';
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }
 
@@ -1073,17 +1038,11 @@ image_submit.addEventListener('click', async (e) => {
 
     image_title.value = '';
     image_file.value = '';
-
-    image_file.closest('label').querySelector('[data-file-name]').textContent =
-      'No file selected';
-
-    loadData();
-
+    image_file.closest('label').querySelector('[data-file-name]').textContent = 'No file selected';
+    reload();
   } else {
     image_msg.textContent = data.message;
-    setTimeout(() => {
-      image_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { image_msg.textContent = ''; }, 4000);
   }
 });
 
@@ -1091,38 +1050,35 @@ image_submit.addEventListener('click', async (e) => {
 // DOCUMENT UPLOAD
 doc_submit.addEventListener('click', async (e) => {
   e.preventDefault();
+   doc_submit.disabled = true;
+  setTimeout(() => {
+      doc_submit.disabled = false;
+
+  }, 2000);
 
   if (!doc_title.value || !doc_file.files.length) {
     doc_msg.textContent = 'Please fill all fields';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
     return;
   }
 
   if (doc_title.value.length > 100) {
     doc_msg.textContent = 'Title is too long (max 100 characters)';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
+    return;
+  }
+
+  if (doc_file.files.length > 1) {
+    doc_msg.textContent = 'Only 1 document can be selected';
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
     return;
   }
 
   const file = doc_file.files[0];
 
-  if (doc_file.files.length > 1) {
-    doc_msg.textContent = 'Only 1 document can be selected';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
-    return;
-  }
-
-  if (file.size > 1 * 1024 * 1024) {
-    doc_msg.textContent = 'Document size must be 1 MB or less';
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+  if (file.size > 5 * 1024 * 1024) {
+    doc_msg.textContent = 'Document size must be 5 MB or less';
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
     return;
   }
 
@@ -1150,19 +1106,13 @@ doc_submit.addEventListener('click', async (e) => {
 
     doc_title.value = '';
     doc_file.value = '';
-
-    doc_file.closest('label').querySelector('[data-file-name]').textContent =
-      'No file selected';
-
-    loadData();
-
+    doc_file.closest('label').querySelector('[data-file-name]').textContent = 'No file selected';
+    reload();
   } else {
     doc_msg.textContent = data.message;
-    setTimeout(() => {
-      doc_msg.textContent = '';
-    }, 4000);
+    setTimeout(() => { doc_msg.textContent = ''; }, 4000);
   }
 });
-  </script>
+</script>
 </body>
 </html>

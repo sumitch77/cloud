@@ -24,6 +24,26 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
+const docFilter = (req, file, cb) => {
+    const allowed = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/plain',
+        'text/csv',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+
+    if (allowed.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only PDF, Word, text, CSV, Excel, and PowerPoint documents are allowed'), false);
+    }
+};
+
 const storage = multer.memoryStorage();
 const upload = multer({ storage,
     fileFilter,
@@ -32,10 +52,32 @@ const upload = multer({ storage,
 
 
  const docstorage = multer.memoryStorage();
-  const docupload = multer({ docstorage,
-    limits: { fileSize: 20 * 1024 * 1024 },
+  const docupload = multer({ docstorage, docFilter,
+    limits: { fileSize: 5 * 1024 * 1024 },
   });
 
+async function uploadFile(file) {
+    if (!file) {
+        throw new Error('File is required');
+    }
+
+    const result = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            {
+                resource_type: 'auto',
+                folder: 'cloud'
+            },
+            (error, result) => {
+                if (error) reject(error);
+                else resolve(result);
+            }
+        );
+
+        stream.end(file.buffer);
+    });
+
+    return result;
+}
 
 
 
@@ -166,5 +208,6 @@ validate,
 upload,
 cloudinary,
 docupload,
+uploadFile,
 };
 

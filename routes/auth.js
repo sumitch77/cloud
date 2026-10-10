@@ -39,15 +39,15 @@ router2.get('/signup' ,generalLimiter , login ,(req, res) => {
 
 router2.post('/login',login, fingerprintLimiter, loginLimiter, async (req, res) => {
   try {
-    let { username, password } = req.body;
-        if (!username || !password) {
+    let { email, password } = req.body;
+        if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Username and password are required'
+        message: 'Email and password are required'
       });
     }
 
-    username = String(username || '').trim();
+    email = String(email || '').trim();
     password = String(password || '').trim();
 
 
@@ -55,16 +55,16 @@ const { data, error } = await supabase
   .schema('cloud')
   .from('user_info')
   .select('email, username, role')
-  .eq('username', username)
+  .eq('email', email)
   .eq('password', password)
   .maybeSingle();
 
       if(data){
         const token = crypto.randomBytes(32).toString("hex");
-        req.session.userId = token;
+    req.session.userId = token;
     req.session.email = data.email;
     req.session.role = data.role;
-    req.session.username = data.username;
+    req.session.userName = data.username;
           return res.json({
     success: true,
     message: `Login successful`
@@ -279,14 +279,40 @@ If you didn't request this email, you can safely ignore it.
 
 });
 
-
 router2.get("/linklogin", generalLimiter, login, async (req, res) => {
   try {
     const { token } = req.query;
 
-    if (!token) {
-      return res.status(400).send("Invalid login link.");
-    }
+if (!token) {
+    return res.status(400).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="/css/output.css">
+            <title>Invalid Login Link</title>
+        </head>
+        <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
+            <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
+                <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </div>
+
+                <h1 class="text-xl font-semibold">Invalid login link</h1>
+
+                <p class="mt-2 text-sm text-neutral-400">
+                    This login link is invalid or incomplete.
+                </p>
+            </div>
+        </body>
+        </html>
+    `);
+}
 
     const tokenHash = crypto
       .createHash("sha256")
@@ -294,7 +320,7 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       .digest("hex");
 
     const { data, error } = await supabase
-    .schema('cloud')
+      .schema('cloud')
       .from("email_verify")
       .select("email, expires_at")
       .eq("token", tokenHash)
@@ -304,37 +330,101 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
 
     if (error) {
       console.error("Token lookup error:", error);
-      return res.status(500).send("Something went wrong.");
+      return res.status(500).send("Something went wrong with server. Try again later.");
     }
 
-    if (!data) {
-      return res.status(401).send("This login link is invalid or has expired.");
-    }
-   
+   if (!data) {
+    return res.status(401).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <link rel="stylesheet" href="/css/output.css">
+            <title>Login Link Expired</title>
+        </head>
+        <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
+            <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
+                <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-400">
+                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </div>
+
+                <h1 class="text-xl font-semibold">Login link expired</h1>
+
+                <p class="mt-2 text-sm text-neutral-400">
+                    This login link is invalid, expired, or has already been used.
+                </p>
+            </div>
+        </body>
+        </html>
+    `);
+}
+
     const { data: user, error: userError } = await supabase
-    .schema('cloud')
+      .schema('cloud')
       .from("user_info")
-      .update({ role: "user"})
+      .update({ role: "user" })
       .eq("email", data.email)
       .select()
       .maybeSingle();
 
-      const { error: updateError } = await supabase
+    const { error: updateError } = await supabase
       .schema('cloud')
       .from("email_verify")
       .update({ used: true })
       .eq("token", tokenHash);
 
-if (userError || updateError) {
+    if (userError || updateError) {
       console.error("User update error:", userError || updateError);
       return res.status(500).send("Failed to contact with database.");
     }
+
     req.session.userId = token;
     req.session.email = data.email;
     req.session.role = "user";
-    req.session.username = user.username;
+    req.session.userName = user.username;
 
-    res.redirect("/");
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Login successful</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+      </head>
+
+      <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
+
+        <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
+
+          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10">
+            <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-700 border-t-blue-500"></div>
+          </div>
+
+          <h1 class="text-xl font-semibold">
+            Login successful
+          </h1>
+
+          <p class="mt-2 text-sm text-neutral-400">
+            Taking you to your dashboard...
+          </p>
+
+        </div>
+
+        <script>
+          setTimeout(() => {
+            window.location.href = '/';
+          }, 1200);
+        </script>
+
+      </body>
+      </html>
+    `);
 
   } catch (error) {
     console.error("email login error:", error);

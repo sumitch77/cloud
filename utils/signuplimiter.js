@@ -9,7 +9,7 @@ const ipaddr = require('ipaddr.js');
 const { ipKeyGenerator } = require('express-rate-limit');
 
 const tooMany = (msg) => (req, res) =>
-     res.status(429).json({ error: msg });
+     res.status(429).json({ message: msg });
 
 
 // 2) Fingerprint limiter
@@ -65,7 +65,7 @@ const emailLimiter = rateLimit({
 });
 
 const emailLimiter2 = rateLimit({
-  windowMs: 60 * 60 * 1000,
+  windowMs:  2 * 60 * 60 * 1000,
   limit: 8,
   keyGenerator: (req) => {
     const ip = ipKeyGenerator(req.ip);

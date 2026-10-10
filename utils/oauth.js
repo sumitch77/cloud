@@ -8,11 +8,12 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const{ supabase} = require('./supabase');
+const crypto = require('crypto');
 
 
 
 router4.get('/auth/google',
-    passport.authenticate('google', { 
+    passport.authenticate('google', {
         scope: ['profile', 'email'],
         prompt: 'select_account'
     })
@@ -25,10 +26,12 @@ router4.get('/auth/google/callback',
         session: true 
     }),
     (req, res) => {
-        req.session.userName = req.user.name;
-        req.session.userId = req.user.id;
-        req.session.userEmail = req.user.email;
-        req.session.profilepic = req.user.googlePhoto;
+      const userId = crypto.randomBytes(32).toString("hex");
+        req.session.userName = req.user.username;
+        req.session.userId = userId;
+        req.session.role = req.user.role || 'user';
+        req.session.email = req.user.email;
+        
 
         req.session.save((err) => {
             if (err) {
@@ -55,9 +58,10 @@ passport.use(
 
         // 1. Query Supabase (matching table 'allusers' and column 'googleid')
         let { data: user, error } = await supabase
-          .from('allusers')
+        .schema('cloud')
+          .from('user_info')
           .select('*')
-          .eq('googleid', googleId)
+          .eq('email', email)
           .maybeSingle();
 
         if (error) {
@@ -68,13 +72,14 @@ passport.use(
         // 2. Insert user if they don't exist
         if (!user) {
           const { data: newUser, error: insertError } = await supabase
-            .from('allusers')
+          .schema('cloud')
+            .from('user_info')
             .insert([
               {
                 googleid: googleId,
                 email: email,
-                name: name,
-                googlePhoto: photo,
+                username: name,
+                googlephoto: photo,
               },
             ])
             .select()

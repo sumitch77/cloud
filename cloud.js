@@ -103,7 +103,11 @@ app.use(routerdata);
 
 
 app.use((req, res, next) => {
-    res.status(404).send('<h1>404 Page Not Found</h1>');
+   return res.status(404).render('error', {
+  errorType: 'Not Found',
+  errorCode: 404,
+  errorMessage: "The page you're looking for doesn't exist."
+});
 });
 
  const port = 3069;
