@@ -74,7 +74,7 @@
   </div>
 </body>
 
-<script>
+<script type="module">
   const password = document.getElementById('password');
   const username = document.getElementById('username');
   const email = document.getElementById('email');
@@ -82,8 +82,7 @@
  
   const signup = document.getElementById('signup');
   const google = document.getElementById('google');
-  import FingerprintJS from '@fingerprintjs/fingerprintjs';
-
+import FingerprintJS from 'https://openfpcdn.io/fingerprintjs/v4';
 const fpPromise = FingerprintJS.load(); 
 
 export async function getFingerprint() {
