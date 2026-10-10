@@ -6,7 +6,6 @@ const dotenv = require('dotenv');
 
 const { router } = require('./routes/index');
 const { router2 } = require('./routes/auth');
-// const {router3} = require('./routes/routeforgot');
 const { router4 } = require('./utils/oauth');
 const { router8 } = require('./routes/forgot');
 const { routerdata } = require('./routes/data');
