@@ -17,12 +17,8 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const { supabase } = require("../utils/supabase");
 
-
 router.get("/", async (req, res) => {
-  if (req.session.userId) {
-    return res.sendFile(path.join(__dirname, "../views/dashboard.html"));
-
-  } res.redirect('/login');
+  return res.sendFile(path.join(__dirname, "../views/dashboard.html"));
 });
 
 router.get("/alltime", async (req, res) => {

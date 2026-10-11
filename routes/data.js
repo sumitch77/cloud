@@ -127,7 +127,6 @@ routerdata.post(
         title,
         username,
         password,
-        is_public: false,
       });
 
     if (error) {
@@ -464,11 +463,10 @@ routerdata.post("/visibility", async (req, res) => {
     return res.status(400).json({ success: false, message: "Invalid request" });
   }
 
-  // Passwords must never be exposed on the public dashboard.
-  if (type === "credentials" && isPublic) {
+  if (type === "credentials") {
     return res.status(400).json({
       success: false,
-      message: "Credentials cannot be made public",
+      message: "Credentials are always private",
     });
   }
 
