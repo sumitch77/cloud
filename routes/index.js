@@ -19,14 +19,14 @@ const { supabase } = require("../utils/supabase");
 
 
 router.get("/", async (req, res) => {
-  if(req.session.userId){
+  if (req.session.userId) {
     return res.sendFile(path.join(__dirname, "../views/dashboard.html"));
-  
+
   } res.redirect('/login');
 });
 
 router.get("/alltime", async (req, res) => {
- return res.status(200).json({success:true});
+  return res.status(200).json({ success: true });
 });
 
 module.exports = {

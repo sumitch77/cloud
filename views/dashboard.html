@@ -275,7 +275,9 @@ const text_msg = document.getElementById('text-msg');
 const image_msg = document.getElementById('image-msg');
 const doc_msg = document.getElementById('doc-msg');
 const credentials_msg = document.getElementById('credentials-msg');
-
+let isLoggedIn = false;
+let currentUserEmail = '';
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // must match the server limit (5 MB)
 const ACTIVE = ['bg-blue-500', 'text-white', 'hover:bg-blue-400', 'active:bg-blue-600'];
 const INACTIVE = ['border', 'border-neutral-800', 'bg-neutral-900', 'text-neutral-300', 'hover:bg-neutral-800', 'hover:text-white', 'active:bg-neutral-700'];
 
@@ -289,15 +291,42 @@ let loading = false;
 
 /* ---------- Helpers ---------- */
 
-function normalize(data) {
-  const src = data.data || data;
+// DB column is `is_public`. Everything on the Public tab is public by definition,
+// so we never rely on the field there. Elsewhere we read is_public (with a
+// fallback to a legacy `public` field) and coerce it to a real boolean.
+function readPublic(item, forcePublic) {
+  if (forcePublic) return true;
+  const v = item.is_public !== undefined ? item.is_public : item.public;
+  return v === true || v === 'true' || v === 't' || v === 1;
+}
+
+function normalize(data, forcePublic = false) {
+  const raw = data.data;
+  const src = raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {};
+
+  const clean = (list) =>
+    (Array.isArray(list) ? list : []).map((item) => ({
+      ...item,
+      is_public: readPublic(item, forcePublic)
+    }));
 
   return {
-    text: Array.isArray(src.text) ? src.text : [],
-    credentials: Array.isArray(src.credentials) ? src.credentials : [],
-    images: Array.isArray(src.images) ? src.images : [],
-    docs: Array.isArray(src.docs) ? src.docs : []
+    text: clean(src.text),
+    credentials: clean(src.credentials),
+    images: clean(src.images),
+    docs: clean(src.docs)
   };
+}
+
+function isEmptyStore(s) {
+  return !s.text.length && !s.credentials.length && !s.images.length && !s.docs.length;
+}
+
+// Only the owner may see or flip the visibility switch.
+function isOwner(item) {
+  if (!isLoggedIn) return false;
+  if (currentFilter !== 'public') return true; // my-uploads tabs only contain my items
+  return Boolean(item.email) && item.email === currentUserEmail;
 }
 
 function el(tag, cls, text) {
@@ -358,26 +387,121 @@ function copyButton(value) {
   return btn;
 }
 
-// Card header with optional copy button
-function cardHeader(item, copyValue = null) {
-  const header = el('div', 'flex items-start justify-between gap-3 min-w-0');
-  const box = el('div', 'min-w-0');
-
-  box.appendChild(
-    el('h3', 'truncate text-base font-bold text-neutral-100', item.title || 'Untitled')
-  );
-  box.appendChild(
-    el('p', 'mt-1 text-xs text-neutral-500', formatDate(item.created_at))
+function toggleButton(initial = false, onChange = null) {
+  const btn = el(
+    'button',
+    'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-neutral-900'
   );
 
-  header.appendChild(box);
+  btn.type = 'button';
+  btn.setAttribute('role', 'switch');
 
-  if (copyValue !== null) {
-    header.appendChild(copyButton(copyValue));
+  const knob = el(
+    'span',
+    'pointer-events-none absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-white shadow-sm transition-transform duration-200 ease-in-out'
+  );
+
+  btn.appendChild(knob);
+
+  let on = Boolean(initial);
+
+  function paint() {
+    btn.classList.toggle('bg-blue-500', on);
+    btn.classList.toggle('bg-neutral-700', !on);
+
+    // Reset the position explicitly in both states.
+    knob.classList.toggle('translate-x-5', on);
+    knob.classList.toggle('translate-x-0', !on);
+
+    btn.setAttribute('aria-checked', String(on));
   }
 
+  btn.addEventListener('click', () => {
+    on = !on;
+    paint();
+
+    if (onChange) onChange(on);
+  });
+btn.setValue = (v) => { on = v; paint(); };
+  paint();
+  return btn;
+}
+
+function cardHeader(item, copyValue = null) {
+  const header = el('div', 'flex w-full min-w-0 flex-1 items-start justify-between gap-3');
+  const box = el('div', 'min-w-0 flex-1');
+
+  const titleRow = el('div', 'flex min-w-0 items-center gap-2');
+  titleRow.appendChild(
+    el('h3', 'min-w-0 truncate text-base font-bold text-neutral-100', item.title || 'Untitled')
+  );
+
+  let badge = null;
+  function paintBadge(isPublic) {
+    if (!badge) return;
+    badge.className =
+      'shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ' +
+      (isPublic
+        ? 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400'
+        : 'border-amber-500/20 bg-amber-500/10 text-amber-400');
+    badge.textContent = isPublic ? 'Public' : 'Private';
+  }
+
+  const owner = isOwner(item);
+
+  // Badge only for the owner's own items (never label other people's public items "Private")
+  if (owner) {
+    badge = el('span');
+    paintBadge(item.is_public === true);
+    titleRow.appendChild(badge);
+  }
+
+  box.appendChild(titleRow);
+  box.appendChild(el('p', 'mt-1 text-xs text-neutral-500', formatDate(item.created_at)));
+  header.appendChild(box);
+
+  const actions = el('div', 'flex shrink-0 items-center gap-2 self-start');
+  if (copyValue !== null) actions.appendChild(copyButton(copyValue));
+
+  // Credentials can never be public, so no switch for them
+  if (owner && item._type !== 'credentials') {
+    const toggle = toggleButton(item.is_public === true, async (value) => {
+      toggle.disabled = true;
+      try {
+        const res = await fetch('/visibility', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: item._type, id: item.id, public: value })
+        });
+        const data = await res.json();
+        if (!res.ok || data.success !== true) {
+          throw new Error(data.message || 'Failed to update visibility');
+        }
+
+        item.is_public = value;
+        paintBadge(value);
+
+        // On the Public tab, a card made private should disappear (and leave the store)
+        if (currentFilter === 'public' && !value) {
+          store[item._type] = store[item._type].filter((x) => x.id !== item.id);
+          header.closest('article')?.remove();
+          if (!content.children.length) render();
+        }
+      } catch (err) {
+        console.error(err);
+        toggle.setValue(!value); // revert the knob
+      } finally {
+        toggle.disabled = false;
+      }
+    });
+    toggle.setAttribute('aria-label', `Public visibility for ${item.title || 'Untitled'}`);
+    actions.appendChild(toggle);
+  }
+
+  header.appendChild(actions);
   return header;
 }
+  
 
 function textCard(item) {
   const card = el('article', CARD);
@@ -582,6 +706,7 @@ function render() {
   }
 
   items.forEach(({ type, item }) => {
+      item._type = type;
     content.appendChild(builders[type](item));
   });
 }
@@ -589,7 +714,7 @@ function render() {
 async function loadData(append = false) {
   if (loading) return;
   loadError.innerText = '';
-
+  if (!append) content.innerHTML = '';
   loading = true;
   showMoreBtn.disabled = true;
 
@@ -603,22 +728,32 @@ async function loadData(append = false) {
 
     const data = await response.json();
 
-       if (data.success === false) {
-        content.innerHTML = '';
-        loadError.classList.remove('hidden');
-       
-        loadError.innerText = data.message;
-        
+    if (data.success === false) {
+      if (!append) content.innerHTML = '';
+      if (append) page--;
+      loadError.classList.remove('hidden');
+      loadError.innerText = data.message;
       return;
     }
 
-    if(data.data.text.length === 0 && data.data.credentials.length === 0 && data.data.images.length === 0 && data.data.docs.length === 0) {
-      showMoreBtn.classList.add('hidden');
-       loadError.classList.remove('hidden');
+    isLoggedIn = data.login === true;
+    currentUserEmail = data.userEmail || '';
+
+    const result = normalize(data, currentFilter === 'public');
+
+    if (isEmptyStore(result)) {
+      if (append) {
+        // Nothing more to load: keep what is already on screen
+        page--;
+        showMoreBtn.classList.add('hidden');
+        loadError.classList.remove('hidden');
         loadError.innerText = 'No more data available';
-        setTimeout(()=>{
-          loadError.innerText = '';
-        },4000)
+        setTimeout(() => { loadError.innerText = ''; }, 4000);
+        return;
+      }
+      store = result;
+      render();
+      showMoreBtn.classList.add('hidden');
       return;
     }
 if(!data.login){
@@ -656,8 +791,6 @@ Array.from(modalmessage).forEach(element => {
     } else if (data.login === false) {
       login.classList.remove('hidden');
     }
-
-    const result = normalize(data);
 
     if (!append) {
       store = result;
@@ -934,8 +1067,8 @@ image_file.addEventListener('change', () => {
 
   const file = image_file.files[0];
 
-  if (file.size > 2 * 1024 * 1024) {
-    image_msg.textContent = 'Image size must be 2 MB or less';
+  if (file.size > MAX_UPLOAD_BYTES) {
+    image_msg.textContent = 'Image size must be 5 MB or less';
     image_file.value = '';
     fileName.textContent = 'No file selected';
     setTimeout(() => { image_msg.textContent = ''; }, 4000);
@@ -966,8 +1099,8 @@ doc_file.addEventListener('change', () => {
 
   const file = doc_file.files[0];
 
-  if (file.size > 1 * 1024 * 1024) {
-    doc_msg.textContent = 'Document size must be 1 MB or less';
+  if (file.size > MAX_UPLOAD_BYTES) {
+    doc_msg.textContent = 'Document size must be 5 MB or less';
     doc_file.value = '';
     fileName.textContent = 'No file selected';
     setTimeout(() => { doc_msg.textContent = ''; }, 4000);
@@ -1008,8 +1141,8 @@ image_submit.addEventListener('click', async (e) => {
 
   const file = image_file.files[0];
 
-  if (file.size > 4 * 1024 * 1024) {
-    image_msg.textContent = 'Image size must be 4 MB or less';
+  if (file.size > MAX_UPLOAD_BYTES) {
+    image_msg.textContent = 'Image size must be 5 MB or less';
     setTimeout(() => { image_msg.textContent = ''; }, 4000);
     return;
   }

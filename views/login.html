@@ -80,26 +80,25 @@
   const google = document.getElementById('google');
   const msg = document.getElementById('message');
 
-import FingerprintJS from 'https://openfpcdn.io/fingerprintjs/v4';
-
-const fpPromise = FingerprintJS.load(); 
-
-export async function getFingerprint() {
-  try {
-    const fp = await fpPromise;
-    const { datap } = await fp.get();
-    return datap;
-  } catch {
-    return null;  
+ async function getFingerprint() {
+    try {
+      const FingerprintJS = await import('https://openfpcdn.io/fingerprintjs/v4');
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      return result.visitorId;
+    } catch (err) {
+      console.warn('Script blocked');
+      return null; 
+    }
   }
-}
+
   document.getElementById('toggle').addEventListener('click', () => {
     password.type = password.type === 'password' ? 'text' : 'password';
   });
 
   login.addEventListener('click',async(e)=>{
     e.preventDefault();
-
+  const datap = getFingerprint();
     if(!email.value || !password.value){
       msg.innerText = 'Please Fill all fields';
       setTimeout(()=>{
@@ -117,7 +116,7 @@ export async function getFingerprint() {
         const response = await fetch('/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' ,
-                  ...(datap && { 'x-device-fingerprint': datap }),
+                  ...(datap && { 'x-device-fingerprint': datap}),
              },
             body: JSON.stringify({email: email.value , password:password.value})
         });

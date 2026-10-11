@@ -61,14 +61,14 @@
     <div class="mt-4 flex gap-3">
       <button id="google" class="flex h-12 hover:cursor-pointer grow items-center justify-center rounded-xl border border-gray-200 bg-white transition hover:bg-gray-800">
       <a href="/auth/google">  <svg class="size-7" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.6l6.7-6.7C35.6 2.6 30.2.5 24 .5 14.6.5 6.5 5.9 2.6 13.7l7.9 6.1C12.4 13.7 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.2-.4-4.7H24v9h12.7c-.6 3-2.3 5.6-4.9 7.3l7.6 5.9c4.4-4.1 7.1-10.2 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.2c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C1 16 0 19.9 0 23.5s1 7.5 2.6 10.8l7.9-6.1z"/><path fill="#34A853" d="M24 47.5c6.2 0 11.5-2 15.4-5.5l-7.6-5.9c-2.1 1.4-4.8 2.3-7.8 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.1C6.5 42.1 14.6 47.5 24 47.5z"/></svg>
-      </a></div>button>
-    </div>
+      </a></div>
+   
 
        
         <p class="s-8 text-gray-900 mt-2">  Already have a account ? <a class="text-blue-500 underline" href="/login">
      Login Here
       </a></p>
-   
+    </div>
   
 
   </div>
@@ -82,19 +82,18 @@
  
   const signup = document.getElementById('signup');
   const google = document.getElementById('google');
-import FingerprintJS from 'https://openfpcdn.io/fingerprintjs/v4';
-const fpPromise = FingerprintJS.load(); 
-
-export async function getFingerprint() {
-  try {
-    const fp = await fpPromise;
-    const { datap } = await fp.get();
-    return datap;
-  } catch {
-    return null;  
+ 
+ async function getFingerprint() {
+    try {
+      const FingerprintJS = await import('https://openfpcdn.io/fingerprintjs/v4');
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      return result.visitorId;
+    } catch (err) {
+      console.warn('script blocked');
+      return null;
+    }
   }
-}
-
 
   document.getElementById('toggle').addEventListener('click', () => {
     password.type = password.type === 'password' ? 'text' : 'password';
@@ -102,7 +101,7 @@ export async function getFingerprint() {
 
   signup.addEventListener('click',async(e)=>{
     e.preventDefault();
-
+ const datap = getFingerprint();
     if(!username.value || !password.value || !email.value){
       msg.innerText = 'Please Fill all fields';
       setTimeout(()=>{
@@ -120,7 +119,7 @@ export async function getFingerprint() {
         const response = await fetch('/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' ,
-                  ...(datap && { 'x-device-fingerprint': datap }),
+                  ...(datap && { 'x-device-fingerprint': datap}),
              },
             body: JSON.stringify({username: username.value , password:password.value , email:email.value})
         });
@@ -140,5 +139,7 @@ export async function getFingerprint() {
         }
 
   });
+
+
 </script>
 </html>

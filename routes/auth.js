@@ -1,142 +1,169 @@
-const express = require('express'); 
-const path = require('path');
+const express = require("express");
+const path = require("path");
 const router2 = express.Router();
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
 dotenv.config();
-const {Resend} = require('resend');
+const { Resend } = require("resend");
 const resendClient = new Resend(process.env.TOKEN);
-const { check } = require('express-validator');
-const { EmailLimiter , TimeLimiter ,validate,} = require('../utils/ratelimit');
-const {upload, cloudinary} = require('../utils/ratelimit');
-const validate2 = require('deep-email-validator');
-const { type } = require('os');
-const {supabase } = require('../utils/supabase');
-const {login} = require('../utils/helper');
-const {fingerprintLimiter , emailLimiter , generalLimiter , emailLimiter2 , loginLimiter} = require('../utils/signuplimiter');
+const { check } = require("express-validator");
+const { EmailLimiter, TimeLimiter, validate } = require("../utils/ratelimit");
+const { upload, cloudinary } = require("../utils/ratelimit");
+const validate2 = require("deep-email-validator");
+const { type } = require("os");
+const { supabase } = require("../utils/supabase");
+const { login } = require("../utils/helper");
+const {
+  fingerprintLimiter,
+  emailLimiter,
+  generalLimiter,
+  emailLimiter2,
+  loginLimiter,
+} = require("../utils/signuplimiter");
+const { client } = require("../utils/redisHelper");
 
-const crypto = require('crypto');
+const crypto = require("crypto");
 
+router2.get("/logout", TimeLimiter, (req, res) => {
+  // req.session.destroy(err => {
+  //   if (err) {
+  //     return res.status(500).json({ success: false, message: 'An error occurred during logout', error: err.message });
+  //   }
+  //   res.clearCookie('connect.sid');
+  //   res.redirect('/');
+  // });
 
-router2.get('/logout',  TimeLimiter,(req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ success: false, message: 'An error occurred during logout', error: err.message });
-    }
-    res.clearCookie('connect.sid');
-    res.redirect('/');
-  });
+  async function main() {
+    await client.set("foo", "bar");
+
+    console.log(await client.get("foo"));
+
+    await client.quit();
+  }
+
+  main().catch(console.error);
 });
 
-
-router2.get('/login' , generalLimiter, login ,(req, res) => {
-
-  res.sendFile(path.join(__dirname, '../views/login.html'));
+router2.get("/login", generalLimiter, login, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/login.html"));
 });
-router2.get('/signup' ,generalLimiter , login ,(req, res) => {
-
-  res.sendFile(path.join(__dirname, '../views/signup.html'));
+router2.get("/signup", generalLimiter, login, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/signup.html"));
 });
 
-router2.post('/login',login, fingerprintLimiter, loginLimiter, async (req, res) => {
-  try {
-    let { email, password } = req.body;
-        if (!email || !password) {
-      return res.status(400).json({
+router2.post(
+  "/login",
+  login,
+  fingerprintLimiter,
+  loginLimiter,
+  async (req, res) => {
+    try {
+      let { email, password } = req.body;
+      if (!email || !password) {
+        return res.status(400).json({
+          success: false,
+          message: "Email and password are required",
+        });
+      }
+
+      email = String(email || "").trim();
+      password = String(password || "").trim();
+
+      const { data, error } = await supabase
+        .schema("cloud")
+        .from("user_info")
+        .select("email, username, role")
+        .eq("email", email)
+        .eq("password", password)
+        .maybeSingle();
+
+      if (data) {
+        const token = crypto.randomBytes(32).toString("hex");
+        req.session.userId = token;
+        req.session.email = data.email;
+        req.session.role = data.role;
+        req.session.userName = data.username;
+        return res.json({
+          success: true,
+          message: `Login successful`,
+        });
+      }
+
+      if (error) {
+        return res.json({
+          success: false,
+          message: `Invalid username or password`,
+        });
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+
+      return res.status(500).json({
         success: false,
-        message: 'Email and password are required'
+        message: "Server error occurred during login",
+      });
+    }
+  },
+);
+
+router2.post(
+  "/signup",
+  login,
+  fingerprintLimiter,
+  emailLimiter,
+  emailLimiter2,
+  [
+    check("email")
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email format")
+      .normalizeEmail(),
+    check("password")
+      .notEmpty()
+      .withMessage("Password is required")
+      .isLength({ min: 6, max: 20 })
+      .withMessage("Password must be between 6 and 20 characters long"),
+    check("username")
+      .notEmpty()
+      .withMessage("Name is required")
+      .isLength({ min: 2, max: 20 })
+      .withMessage("Name must be between 2 and 20 characters long"),
+  ],
+  validate,
+  async (req, res, next) => {
+    let { email, username, password } = req.body;
+    email = email.toLowerCase().trim();
+    const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+    const { data, error } = await supabase
+      .schema("cloud")
+      .from("email_verify")
+      .insert({
+        token: tokenHash,
+        email: email,
+      });
+
+    if (error) {
+      console.error("Supabase insert error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Signup is currently not working",
+        error: error.message,
       });
     }
 
-    email = String(email || '').trim();
-    password = String(password || '').trim();
+    try {
+      const loginLink = `https://sumit7.website/linklogin?token=${token}`;
 
+      await resendClient.emails.send({
+        from: "Sumit <Sumit@sumit7.website>",
+        to: email,
+        subject: "Sign in to Cloud",
 
-const { data, error } = await supabase
-  .schema('cloud')
-  .from('user_info')
-  .select('email, username, role')
-  .eq('email', email)
-  .eq('password', password)
-  .maybeSingle();
-
-      if(data){
-        const token = crypto.randomBytes(32).toString("hex");
-    req.session.userId = token;
-    req.session.email = data.email;
-    req.session.role = data.role;
-    req.session.userName = data.username;
-          return res.json({
-    success: true,
-    message: `Login successful`
-  });
-      }
-
-    if(error){
-  return res.json({
-    success: false,
-    message: `Invalid username or password`
-  });
-    }
-
-  } catch (err) {
-    console.error('Login error:', err);
-
-    return res.status(500).json({
-      success: false,
-      message: 'Server error occurred during login'
-    });
-  }
-});
-
-
-    
-
-router2.post('/signup',  login , fingerprintLimiter, emailLimiter, emailLimiter2,
-  [    check('email').notEmpty().withMessage('Email is required')
-    .isEmail().withMessage('Invalid email format')
-    .normalizeEmail(),
-    check('password').notEmpty().withMessage('Password is required')
-    .isLength({ min: 6 , max:20 }).withMessage('Password must be between 6 and 20 characters long'),
-    check('username').notEmpty().withMessage('Name is required')
-    .isLength({ min: 2, max: 20 }).withMessage('Name must be between 2 and 20 characters long'),
-      
-    
-   ],
-  validate,
-  async (req, res, next) => {
-
-  let { email , username , password} = req.body;
-  email = email.toLowerCase().trim();
-  const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
-
-const token = crypto.randomBytes(32).toString("hex");
-const tokenHash = crypto
-  .createHash("sha256")
-  .update(token)
-  .digest("hex");
-
-  const { data, error } = await supabase
-  .schema('cloud')
-  .from('email_verify')
-  .insert({
-    token: tokenHash,
-    email: email
-  });
-
-  if(error){
-    console.error('Supabase insert error:', error);
-   return res.status(500).json({ success: false, message: 'Signup is currently not working', error: error.message });
-  }
-  
-  try {
-  const loginLink = `https://sumit7.website/linklogin?token=${token}`;
-
-  await resendClient.emails.send({
-    from: 'Sumit <Sumit@sumit7.website>',
-    to: email,
-    subject: 'Sign in to Cloud',
-
-    html: `
+        html: `
       <!DOCTYPE html>
       <html>
         <body style="
@@ -235,7 +262,7 @@ const tokenHash = crypto
       </html>
     `,
 
-    text: `
+        text: `
 Sign in to Cloud
 
 Click the link below to sign in:
@@ -244,47 +271,50 @@ ${loginLink}
 This link expires in 10 minutes and can only be used once.
 
 If you didn't request this email, you can safely ignore it.
-    `
-  });
+    `,
+      });
 
-  console.log(` login link sent to ${email}`);
+      console.log(` login link sent to ${email}`);
 
-  const { data: user, error: userError } = await supabase
-  .schema('cloud')
-  .from('user_info')
-  .insert({
-    email: email,
-    username: username,
-    password: password,
-    role:'notverified',
-  });
-  if(userError){
-    console.error('Supabase user insert error:', userError);
-   return res.status(500).json({ success: false, message: 'Signup is currently not working', error: userError.message });
-  }
-  return res.json({
-    success: true,
-    message: `Login link sent to ${email}`
-  });
+      const { data: user, error: userError } = await supabase
+        .schema("cloud")
+        .from("user_info")
+        .insert({
+          email: email,
+          username: username,
+          password: password,
+          role: "notverified",
+        });
+      if (userError) {
+        console.error("Supabase user insert error:", userError);
+        return res.status(500).json({
+          success: false,
+          message: "Signup is currently not working",
+          error: userError.message,
+        });
+      }
+      return res.json({
+        success: true,
+        message: `Login link sent to ${email}`,
+      });
+    } catch (error) {
+      console.log("Email error:", error);
 
-} catch (error) {
-  console.log('Email error:', error);
-
- return res.status(500).json({
-    success: false,
-    message: 'Failed to send email',
-    error: error.message
-  });
-  }
-
-});
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send email",
+        error: error.message,
+      });
+    }
+  },
+);
 
 router2.get("/linklogin", generalLimiter, login, async (req, res) => {
   try {
     const { token } = req.query;
 
-if (!token) {
-    return res.status(400).send(`
+    if (!token) {
+      return res.status(400).send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -312,15 +342,12 @@ if (!token) {
         </body>
         </html>
     `);
-}
+    }
 
-    const tokenHash = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
     const { data, error } = await supabase
-      .schema('cloud')
+      .schema("cloud")
       .from("email_verify")
       .select("email, expires_at")
       .eq("token", tokenHash)
@@ -330,11 +357,13 @@ if (!token) {
 
     if (error) {
       console.error("Token lookup error:", error);
-      return res.status(500).send("Something went wrong with server. Try again later.");
+      return res
+        .status(500)
+        .send("Something went wrong with server. Try again later.");
     }
 
-   if (!data) {
-    return res.status(401).send(`
+    if (!data) {
+      return res.status(401).send(`
         <!DOCTYPE html>
         <html>
         <head>
@@ -362,10 +391,10 @@ if (!token) {
         </body>
         </html>
     `);
-}
+    }
 
     const { data: user, error: userError } = await supabase
-      .schema('cloud')
+      .schema("cloud")
       .from("user_info")
       .update({ role: "user" })
       .eq("email", data.email)
@@ -373,7 +402,7 @@ if (!token) {
       .maybeSingle();
 
     const { error: updateError } = await supabase
-      .schema('cloud')
+      .schema("cloud")
       .from("email_verify")
       .update({ used: true })
       .eq("token", tokenHash);
@@ -425,16 +454,12 @@ if (!token) {
       </body>
       </html>
     `);
-
   } catch (error) {
     console.error("email login error:", error);
     res.status(500).send("Login failed.");
   }
 });
 
-
-
 module.exports = {
-    router2, 
-    
+  router2,
 };
