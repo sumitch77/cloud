@@ -24,15 +24,23 @@ const { client } = require("../utils/redisHelper");
 const crypto = require("crypto");
 
 router2.get("/logout", TimeLimiter, (req, res) => {
-  req.session.destroy(err => {
-    if (err) {
-      return res.status(500).json({ success: false, message: 'An error occurred during logout', error: err.message });
-  }
-   res.clearCookie('connect.sid');
-    res.redirect('/');
-   });
+  // req.session.destroy(err => {
+  //   if (err) {
+  //     return res.status(500).json({ success: false, message: 'An error occurred during logout', error: err.message });
+  //   }
+  //   res.clearCookie('connect.sid');
+  //   res.redirect('/');
+  // });
 
-  
+  async function main() {
+    await client.set("foo", "bar");
+
+    console.log(await client.get("foo"));
+
+    await client.quit();
+  }
+
+  main().catch(console.error);
 });
 
 router2.get("/login", generalLimiter, login, (req, res) => {
@@ -70,6 +78,9 @@ router2.post(
 
       if (data) {
         const token = crypto.randomBytes(32).toString("hex");
+        if (data.email === process.env.ADMINEMAIL) {
+          req.session.admin = true;
+        }
         req.session.userId = token;
         req.session.email = data.email;
         req.session.role = data.role;

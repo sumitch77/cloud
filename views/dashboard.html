@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>cloud</title>
 <link rel="stylesheet" href="/output.css">
+<link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
 </head>
 <body class="min-h-screen bg-neutral-950 text-neutral-100 antialiased">
 
@@ -53,11 +54,14 @@
         </svg>
         <input
           type="text"
-          placeholder="Search with username"
+          id="searchInput"
+          maxlength="100"
+          autocomplete="off"
+          placeholder="Search by title or content"
           class="h-12 w-full rounded-xl border border-neutral-800 bg-neutral-900 pl-12 pr-4 text-base text-neutral-100 shadow-sm placeholder:text-neutral-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
         />
       </div>
-      <button type="button" class="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 px-8 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">
+      <button type="button" id="searchBtn" class="flex h-12 items-center justify-center gap-2 rounded-xl bg-blue-500 px-8 text-base font-semibold text-white shadow-sm transition hover:bg-blue-400 active:bg-blue-600">
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="10" cy="10" r="6" />
           <path d="m20 20-3.5-3.5" />
@@ -276,7 +280,10 @@ const image_msg = document.getElementById('image-msg');
 const doc_msg = document.getElementById('doc-msg');
 const credentials_msg = document.getElementById('credentials-msg');
 let isLoggedIn = false;
-let currentUserEmail = '';
+let isAdmin = false;
+let searchQuery = '';   // sent to the backend (Enter / Search button)
+let liveFilter = '';    // instant filter over the items already on screen (typing)
+let editing = null; // { type, item } while the upload modal is used as the edit dialog
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // must match the server limit (5 MB)
 const ACTIVE = ['bg-blue-500', 'text-white', 'hover:bg-blue-400', 'active:bg-blue-600'];
 const INACTIVE = ['border', 'border-neutral-800', 'bg-neutral-900', 'text-neutral-300', 'hover:bg-neutral-800', 'hover:text-white', 'active:bg-neutral-700'];
@@ -322,11 +329,18 @@ function isEmptyStore(s) {
   return !s.text.length && !s.credentials.length && !s.images.length && !s.docs.length;
 }
 
-// Only the owner may see or flip the visibility switch.
+// The server sends is_owner (other users' emails never reach the browser).
+// Only the owner sees the visibility switch and badge.
 function isOwner(item) {
+  return isLoggedIn && item.is_owner === true;
+}
+
+// Owners can edit / delete their items. An admin can edit / delete any PUBLIC
+// item (never credentials, they are always private).
+function canManage(item) {
   if (!isLoggedIn) return false;
-  if (currentFilter !== 'public') return true; // my-uploads tabs only contain my items
-  return Boolean(item.email) && item.email === currentUserEmail;
+  if (isOwner(item)) return true;
+  return isAdmin && item._type !== 'credentials' && item.is_public === true;
 }
 
 function el(tag, cls, text) {
@@ -427,6 +441,100 @@ btn.setValue = (v) => { on = v; paint(); };
   return btn;
 }
 
+const ICONS = {
+  edit: '<path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />',
+  trash: '<path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M19 6l-1 14H6L5 6" /><path d="M10 11v6M14 11v6" />',
+  share: '<circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" /><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4" />',
+  download: '<path d="M12 4v12m0 0-4-4m4 4 4-4" /><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3" />'
+};
+
+const ACTION_BTN = 'flex flex-1 items-center justify-center gap-2 rounded-lg border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-800 active:bg-neutral-700';
+
+function svgIcon(name) {
+  return '<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
+}
+
+// Puts an icon + text label inside a button / link, returns the label span
+function withIcon(node, icon, text) {
+  node.innerHTML = svgIcon(icon);
+  const label = el('span', '', text);
+  node.appendChild(label);
+  return label;
+}
+
+function iconButton(icon, label, danger, onClick) {
+  const btn = el(
+    'button',
+    'flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-neutral-700 bg-neutral-900 text-neutral-300 transition hover:bg-neutral-800 active:bg-neutral-700 ' +
+      (danger ? 'hover:text-red-400' : 'hover:text-white')
+  );
+  btn.type = 'button';
+  btn.title = label;
+  btn.setAttribute('aria-label', label);
+  btn.innerHTML = svgIcon(icon);
+  btn.addEventListener('click', onClick);
+  return btn;
+}
+
+function shareButton(item) {
+  const btn = el('button', ACTION_BTN);
+  btn.type = 'button';
+  const label = withIcon(btn, 'share', 'Share');
+
+  btn.addEventListener('click', async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: item.title || 'Shared file', url: item.url });
+      } else {
+        await navigator.clipboard.writeText(item.url || '');
+        label.textContent = 'Link copied';
+        setTimeout(() => { label.textContent = 'Share'; }, 1500);
+      }
+    } catch (err) {
+      if (!err || err.name !== 'AbortError') console.error('Share failed:', err);
+    }
+  });
+
+  return btn;
+}
+
+function downloadLink(item) {
+  const link = el('a', ACTION_BTN);
+  withIcon(link, 'download', 'Download');
+  link.href = cloudinary(item.url, 'fl_attachment');
+  return link;
+}
+
+function flashError(message) {
+  loadError.classList.remove('hidden');
+  loadError.innerText = message;
+  setTimeout(() => { loadError.innerText = ''; }, 4000);
+}
+
+async function deleteItem(item, btn) {
+  if (!confirm('Delete "' + (item.title || 'Untitled') + '"? This cannot be undone.')) return;
+
+  btn.disabled = true;
+  try {
+    const res = await fetch('/delete', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: item._type, id: item.id })
+    });
+    const data = await res.json();
+    if (!res.ok || data.success !== true) {
+      throw new Error(data.message || 'Failed to delete');
+    }
+
+    store[item._type] = store[item._type].filter((x) => x.id !== item.id);
+    render();
+  } catch (err) {
+    console.error(err);
+    flashError(err.message || 'Failed to delete');
+    btn.disabled = false;
+  }
+}
+
 function cardHeader(item, copyValue = null) {
   const header = el('div', 'flex w-full min-w-0 flex-1 items-start justify-between gap-3');
   const box = el('div', 'min-w-0 flex-1');
@@ -462,6 +570,13 @@ function cardHeader(item, copyValue = null) {
 
   const actions = el('div', 'flex shrink-0 items-center gap-2 self-start');
   if (copyValue !== null) actions.appendChild(copyButton(copyValue));
+
+  // Edit + delete: owner, or admin on public items
+  if (canManage(item)) {
+    const name = item.title || 'Untitled';
+    actions.appendChild(iconButton('edit', 'Edit ' + name, false, () => openEdit(item)));
+    actions.appendChild(iconButton('trash', 'Delete ' + name, true, (e) => deleteItem(item, e.currentTarget)));
+  }
 
   // Credentials can never be public, so no switch for them
   if (owner && item._type !== 'credentials') {
@@ -605,6 +720,12 @@ function imageCard(item) {
   // Title + Copy URL button
   card.appendChild(cardHeader(item, item.url));
 
+  // Download + Share
+  const actions = el('div', 'flex gap-2');
+  actions.appendChild(downloadLink(item));
+  actions.appendChild(shareButton(item));
+  card.appendChild(actions);
+
   return card;
 }
 
@@ -660,6 +781,7 @@ function docCard(item) {
 
   actions.appendChild(view);
   actions.appendChild(download);
+  actions.appendChild(shareButton(item));
   card.appendChild(actions);
 
   return card;
@@ -694,12 +816,21 @@ function render() {
 
   items.sort((a, b) => byLatest(a.item, b.item));
 
+  // Instant filter while typing (only the items already loaded; passwords are not searched)
+  if (liveFilter) {
+    items = items.filter(({ item }) =>
+      [item.title, item.value, item.username].some(
+        (field) => typeof field === 'string' && field.toLowerCase().includes(liveFilter)
+      )
+    );
+  }
+
   if (!items.length) {
     content.appendChild(
       el(
         'p',
         'col-span-full py-12 text-center text-sm text-neutral-500',
-        'Nothing uploaded yet.'
+        liveFilter ? 'No match in the loaded items. Press Enter to search everything.' : searchQuery ? 'No results found.' : 'Nothing uploaded yet.'
       )
     );
     return;
@@ -711,6 +842,42 @@ function render() {
   });
 }
 
+// Header user chip + the "login to upload" hints in the upload modal
+function applySession(data) {
+  const loggedIn = data.login === true;
+
+  Array.from(modalmessage).forEach((element) => {
+    element.classList.toggle('hidden', loggedIn);
+  });
+  credentials_msg.innerText = loggedIn ? '' : 'login to upload credentials';
+  image_msg.innerText = loggedIn ? '' : 'login to upload Images';
+  doc_msg.innerText = loggedIn ? '' : 'login to upload Docs';
+
+  login.classList.remove('hidden');
+  if (!loggedIn) return;
+
+  // The chip below has its own border, so drop the button's own border/padding
+  // (otherwise the username sits inside two boxes)
+  login.classList.remove('border', 'border-neutral-700', 'px-4', 'py-2', 'hover:bg-neutral-800', 'active:bg-neutral-700');
+  login.replaceChildren();
+
+  const user = el(
+    'div',
+    'flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm font-medium text-neutral-200'
+  );
+
+  const avatar = el(
+    'div',
+    'flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/15 text-xs font-semibold text-blue-400',
+    (data.username || '?').charAt(0).toUpperCase()
+  );
+
+  const username = el('span', '', data.username || 'User');
+
+  user.append(avatar, username);
+  login.appendChild(user);
+}
+
 async function loadData(append = false) {
   if (loading) return;
   loadError.innerText = '';
@@ -718,26 +885,29 @@ async function loadData(append = false) {
   loading = true;
   showMoreBtn.disabled = true;
 
+  const searching = searchQuery !== '';
+
   try {
-    const url = currentFilter === 'public'
-      ? `/dashboard/data?page=${page}&type=public`
-      : `/dashboard/data2?page=${page}&type=${encodeURIComponent(currentFilter)}`;
+    const url = searching
+      ? `/dashboard/search?type=${encodeURIComponent(currentFilter)}&q=${encodeURIComponent(searchQuery)}`
+      : currentFilter === 'public'
+        ? `/dashboard/data?page=${page}&type=public`
+        : `/dashboard/data2?page=${page}&type=${encodeURIComponent(currentFilter)}`;
 
     const response = await fetch(url);
-
-
     const data = await response.json();
 
     if (data.success === false) {
-      if (!append) content.innerHTML = '';
       if (append) page--;
+      if (searching) showMoreBtn.classList.add('hidden');
       loadError.classList.remove('hidden');
       loadError.innerText = data.message;
       return;
     }
 
     isLoggedIn = data.login === true;
-    currentUserEmail = data.userEmail || '';
+    isAdmin = data.admin === true;
+    applySession(data);
 
     const result = normalize(data, currentFilter === 'public');
 
@@ -756,41 +926,6 @@ async function loadData(append = false) {
       showMoreBtn.classList.add('hidden');
       return;
     }
-if(!data.login){
-     credentials_msg.innerText = 'login to upload credentials';
-        image_msg.innerText = 'login to upload Images';
-        doc_msg.innerText = 'login to upload Docs';
-Array.from(modalmessage).forEach(element => {
-    element.classList.remove('hidden');
-});
-}
-    if (data.login === true) {
-      login.classList.remove('hidden');
-Array.from(modalmessage).forEach(element => {
-    element.classList.add('hidden');
-});    credentials_msg.innerText = '';
-        image_msg.innerText = '';
-        doc_msg.innerText = '';
-      login.replaceChildren();
-
-      const user = el(
-        'div',
-        'flex items-center gap-2 rounded-lg border border-neutral-800 bg-neutral-900 px-3 py-2 text-sm font-medium text-neutral-200'
-      );
-
-      const avatar = el(
-        'div',
-        'flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/15 text-xs font-semibold text-blue-400',
-        (data.username || '?').charAt(0).toUpperCase()
-      );
-
-      const username = el('span', '', data.username || 'User');
-
-      user.append(avatar, username);
-      login.appendChild(user);
-    } else if (data.login === false) {
-      login.classList.remove('hidden');
-    }
 
     if (!append) {
       store = result;
@@ -802,7 +937,8 @@ Array.from(modalmessage).forEach(element => {
 
     render();
 
-    showMoreBtn.classList.remove('hidden');
+    // Search returns a single page of results, so no "Show more" while searching
+    showMoreBtn.classList.toggle('hidden', searching);
     showMoreBtn.textContent = 'Show more';
   } catch (err) {
     console.error(err);
@@ -867,6 +1003,40 @@ showMoreBtn.addEventListener('click', async () => {
 loadData();
 
 
+/* ---------- Search ---------- */
+
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+
+function runSearch() {
+  searchQuery = searchInput.value.trim();
+  page = 1;
+  store = { text: [], credentials: [], images: [], docs: [] };
+  loadData();
+}
+
+searchBtn.addEventListener('click', runSearch);
+
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    runSearch();
+  }
+});
+
+// Clearing the box brings the normal list back
+// Typing filters what is already on screen instantly; Enter / Search asks the backend
+searchInput.addEventListener('input', () => {
+  liveFilter = searchInput.value.trim().toLowerCase();
+
+  if (liveFilter === '' && searchQuery !== '') {
+    runSearch(); // box cleared: bring the normal list back
+  } else {
+    render();
+  }
+});
+
+
 /* ---------- Upload modal ---------- */
 
 const modal = document.getElementById('upload-modal');
@@ -895,12 +1065,14 @@ function showView(name) {
 }
 
 function openModal() {
+  resetEditMode();
   showView('menu');
   modal.classList.remove('hidden');
   modal.classList.add('flex');
 }
 
 function closeModal() {
+  resetEditMode();
   modal.classList.add('hidden');
   modal.classList.remove('flex');
 }
@@ -932,8 +1104,155 @@ const credentials_password = document.getElementById('credentials-password');
 const credentials_submit = document.getElementById('credentials-submit');
 
 
+/* ---------- Edit (re-uses the upload modal) ---------- */
+
+const EDIT_FORMS = {
+  text: { submit: text_submit, msg: text_msg },
+  credentials: { submit: credentials_submit, msg: credentials_msg },
+  images: { submit: image_submit, msg: image_msg },
+  docs: { submit: doc_submit, msg: doc_msg }
+};
+
+const EDIT_TITLES = {
+  text: 'Edit text',
+  credentials: 'Edit credentials',
+  images: 'Edit image',
+  docs: 'Edit document'
+};
+
+// The "choose a file" boxes are hidden while editing (only the title can change)
+const FILE_PICKERS = [image_file, doc_file].map((input) => input.closest('label'));
+
+function openEdit(item) {
+  const type = item._type;
+  editing = { type, item };
+
+  if (type === 'text') {
+    text_title.value = item.title || '';
+    text_content.value = item.value || '';
+  } else if (type === 'credentials') {
+    credentials_title.value = item.title || '';
+    credentials_username.value = item.username || '';
+    credentials_password.value = item.password || '';
+  } else if (type === 'images') {
+    image_title.value = item.title || '';
+  } else if (type === 'docs') {
+    doc_title.value = item.title || '';
+  }
+
+  FILE_PICKERS.forEach((label) => { label.style.display = 'none'; });
+
+  const { submit, msg } = EDIT_FORMS[type];
+  msg.textContent = '';
+  submit.textContent = 'Update';
+  submit.disabled = false;
+
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  showView(type);
+  title.textContent = EDIT_TITLES[type];
+  backBtn.classList.add('hidden'); // no going back to the upload menu while editing
+  backBtn.classList.remove('flex');
+}
+
+// Puts the modal back to normal "upload" mode
+function resetEditMode() {
+  if (!editing) return;
+
+  const { type } = editing;
+  editing = null;
+
+  const { submit, msg } = EDIT_FORMS[type];
+  submit.textContent = 'Upload';
+  submit.disabled = false;
+  msg.textContent = '';
+
+  FILE_PICKERS.forEach((label) => { label.style.display = ''; });
+
+  text_title.value = '';
+  text_content.value = '';
+  credentials_title.value = '';
+  credentials_username.value = '';
+  credentials_password.value = '';
+  image_title.value = '';
+  doc_title.value = '';
+}
+
+async function submitEdit() {
+  const { type, item } = editing;
+  const { submit, msg } = EDIT_FORMS[type];
+
+  const fail = (text) => {
+    msg.textContent = text;
+    setTimeout(() => { msg.textContent = ''; }, 4000);
+  };
+
+  let payload;  // what the server receives
+  let changes;  // what we apply to the card afterwards
+
+  if (type === 'text') {
+    if (!text_title.value || !text_content.value) return fail('Please fill all fields');
+    if (text_title.value.length > 100) return fail('Title is too long (max 100 characters)');
+    if (text_content.value.length > 10000) return fail('Content is too long (max 10000 characters)');
+    payload = { title: text_title.value, content: text_content.value };
+    changes = { title: text_title.value, value: text_content.value };
+  } else if (type === 'credentials') {
+    if (!credentials_title.value || !credentials_username.value || !credentials_password.value) {
+      return fail('Please fill all fields');
+    }
+    if (credentials_title.value.length > 100) return fail('Title is too long (max 100 characters)');
+    if (credentials_password.value.length > 100 || credentials_username.value.length > 100) {
+      return fail('Username or password is too long (max 100 characters)');
+    }
+    payload = {
+      title: credentials_title.value,
+      username: credentials_username.value,
+      password: credentials_password.value
+    };
+    changes = { ...payload };
+  } else {
+    const newTitle = type === 'images' ? image_title.value : doc_title.value;
+    if (!newTitle) return fail('Please fill all fields');
+    if (newTitle.length > 100) return fail('Title is too long (max 100 characters)');
+    payload = { title: newTitle };
+    changes = { title: newTitle };
+  }
+
+  submit.disabled = true;
+
+  try {
+    const res = await fetch('/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type, id: item.id, ...payload })
+    });
+    const data = await res.json();
+
+    if (!res.ok || data.success !== true) {
+      throw new Error(data.message || 'Failed to update');
+    }
+
+    Object.assign(item, changes);
+    render();
+
+    msg.classList.replace('text-red-800', 'text-green-800');
+    msg.textContent = 'Updated successfully';
+
+    setTimeout(() => {
+      closeModal();
+      msg.classList.replace('text-green-800', 'text-red-800');
+    }, 1000);
+  } catch (err) {
+    console.error(err);
+    submit.disabled = false;
+    fail(err.message || 'Failed to update');
+  }
+}
+
+
 // TEXT UPLOAD
 text_submit.addEventListener('click', async (e) => {
+  if (editing) { e.preventDefault(); submitEdit(); return; }
   e.preventDefault();
   text_submit.disabled = true;
   setTimeout(() => {
@@ -990,6 +1309,7 @@ text_submit.addEventListener('click', async (e) => {
 
 // CREDENTIALS UPLOAD
 credentials_submit.addEventListener('click', async (e) => {
+  if (editing) { e.preventDefault(); submitEdit(); return; }
   e.preventDefault();
    credentials_submit.disabled = true;
   setTimeout(() => {
@@ -1114,6 +1434,7 @@ doc_file.addEventListener('change', () => {
 
 // IMAGE UPLOAD
 image_submit.addEventListener('click', async (e) => {
+  if (editing) { e.preventDefault(); submitEdit(); return; }
   e.preventDefault();
    image_submit.disabled = true;
   setTimeout(() => {
@@ -1182,6 +1503,7 @@ image_submit.addEventListener('click', async (e) => {
 
 // DOCUMENT UPLOAD
 doc_submit.addEventListener('click', async (e) => {
+  if (editing) { e.preventDefault(); submitEdit(); return; }
   e.preventDefault();
    doc_submit.disabled = true;
   setTimeout(() => {

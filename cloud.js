@@ -15,12 +15,16 @@ const cors = require("cors");
 const passport = require("passport");
 const { User } = require("./routes/auth");
 
+const favicon = require("serve-favicon");
+
 const { supabase } = require("./utils/supabase");
 
 const session = require("express-session");
 const connectPgSimple = require("connect-pg-simple");
 const pg = require("pg");
 const PgSession = connectPgSimple(session);
+
+app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
 dotenv.config();
 const allowedOrigins = [
