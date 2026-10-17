@@ -27,6 +27,9 @@ router4.get('/auth/google/callback',
     }),
     (req, res) => {
       const userId = crypto.randomBytes(32).toString("hex");
+        if(req.user.email=== process.env.ADMINEMAIL){
+req.session.admin = true;
+}
         req.session.userName = req.user.username;
         req.session.userId = userId;
         req.session.role = req.user.role || 'user';
