@@ -1,0 +1,25 @@
+
+@import "tailwindcss";
+@source "../views/**/*.ejs";
+
+
+body {
+  background-image: 
+    radial-gradient(ellipse 70% 40% at 10% 0%, rgba(0, 229, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 90% 90%, rgba(0, 230, 118, 0.05) 0%, transparent 55%);
+}
+
+.menu-wrap.open .dropdown {
+  display: block;
+}
+
+.menu-wrap.open .menu-btn svg {
+  transform: rotate(180deg);
+}
+
+/* 
+  @media (max-width: 900px){
+    .page{ flex-direction:column; }
+    .left-panel{ flex:none; width:100%; padding:32px 20px; }
+    .right-panel{ flex:none; width:100%; height:320px; }
+  } */

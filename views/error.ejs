@@ -1,0 +1,60 @@
+<%
+  const type = locals.errorType || 'Something went wrong';
+  const code = locals.errorCode || 500;
+  const message = locals.errorMessage || 'An unexpected error occurred. Please try again later.';
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= code %> | <%= type %></title>
+
+  <link rel="stylesheet" href="/output.css">
+
+  <style>
+   
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .float { animation: float 4s ease-in-out infinite; }
+  </style>
+</head>
+
+<body class="relative flex min-h-screen items-center justify-center overflow-hidden bg-black px-6 text-neutral-100 antialiased">
+
+  <div class="grid-bg pointer-events-none absolute inset-0"></div>
+  <div class="pointer-events-none absolute left-1/2 top-1/2 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/10 blur-3xl"></div>
+
+  <main class="relative z-10 flex w-full max-w-xl flex-col items-center text-center">
+
+    <!-- Error type -->
+    <p class="text-sm font-semibold uppercase tracking-[0.3em] text-blue-400 sm:text-base">
+      <%= type %>
+    </p>
+
+    <!-- Error code -->
+    <h1 class="mt-2 bg-gradient-to-b from-white via-neutral-300 to-neutral-700 bg-clip-text text-8xl font-black leading-none tracking-tight text-transparent sm:text-9xl">
+      <%= code %>
+    </h1>
+
+    <!-- Message -->
+    <p class="mt-6 max-w-md text-base text-neutral-400 sm:text-lg">
+      <%= message %>
+    </p>
+
+    <!-- Logo: cloud on blue background -->
+    <div class="float mt-12 flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-500 shadow-lg shadow-blue-500/30">
+      <svg class="h-11 w-11 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9z" />
+      </svg>
+    </div>
+
+    <a href="/" class="mt-10 rounded-lg border border-neutral-800 bg-neutral-900 px-5 py-2 text-sm font-medium text-neutral-300 transition hover:bg-neutral-800 hover:text-white active:bg-neutral-700">
+      Back to home
+    </a>
+
+  </main>
+</body>
+</html>
