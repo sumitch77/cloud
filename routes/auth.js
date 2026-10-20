@@ -173,9 +173,7 @@ router2.post(
         from: "Sumit <Sumit@sumit7.website>",
         to: email,
         subject: "Sign in to Cloud",
-        text:
-          "Hello! Click the link below to sign in to your Cloud account:\n\n" +
-          loginLink,
+        text: "Hello",
       });
 
       console.log(` login link sent to ${email}`);
