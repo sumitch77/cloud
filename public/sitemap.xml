@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+       <loc>https://sumit7.website/</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>1.0000</priority>
+  </url>
+    <url>
+       <loc>https://sumit7.website/chat</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>1</priority>
+  </url>
+  <url>
+       <loc>https://sumit7.website/login</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>0.8000</priority>
+  </url>
+  <url>
+       <loc>https://sumit7.website/forgot</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sumit7.website/signup</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sumit7.website/policy</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+  <url>
+       <loc>https://sumit7.website/terms</loc>
+       <lastmod>2026-10-20T08:10:35+00:00</lastmod>
+       <priority>0.6400</priority>
+  </url>
+</urlset>
