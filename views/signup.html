@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="/output.css">
 <meta name="description" content="Welcome , Make your account with us">
 <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2">
+<script src="https://www.google.com/recaptcha/api.js?render=6LdP1VwtAAAAAHvsT_314e0rpmoDW0qvFySxuNmC"></script>
+
 
 <style>
   :root { --sky-top:#a8d8f0; --sky-mid:#cfe9f8; --cloud:#ffffff; }
@@ -125,6 +127,29 @@
       },4000)
       return;
     }
+    
+    
+        const token = await new Promise((resolve, reject) => {
+            grecaptcha.ready(() => {
+                grecaptcha.execute('6LdP1VwtAAAAAHvsT_314e0rpmoDW0qvFySxuNmC', { action: 'signup' })
+                    .then(resolve)
+                    .catch(reject);
+            });
+        });
+
+        const captchaResponse = await fetch('/captcha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email.value,
+                token
+            })
+        });
+        const result2 = await captchaResponse.json();
+        if(!result2.success){
+          msg.innerText = "captcha verification failed , Please Reload site before trying again";
+          return;
+        }
         const response = await fetch('/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' ,

@@ -25,13 +25,11 @@ const crypto = require("crypto");
 router2.get("/logout", TimeLimiter, (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res
-        .status(500)
-        .json({
-          success: false,
-          message: "An error occurred during logout",
-          error: err.message,
-        });
+      return res.status(500).json({
+        success: false,
+        message: "An error occurred during logout",
+        error: err.message,
+      });
     }
     res.clearCookie("connect.sid");
     res.redirect("/");
@@ -130,6 +128,24 @@ router2.post(
   validate,
   async (req, res, next) => {
     let { email, username, password } = req.body;
+
+    const captcha = req.session.captcha;
+    const captchaIsValid =
+      captcha &&
+      captcha.valid === true &&
+      captcha.email === email &&
+      typeof captcha.issuedAt === "number" &&
+      Date.now() - captcha.issuedAt <= 3 * 60 * 1000;
+
+    if (!captchaIsValid) {
+      req.session.captcha = null;
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Captcha Verification failed , please try again",
+        });
+    }
     email = email.toLowerCase().trim();
     const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
 
