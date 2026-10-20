@@ -139,12 +139,10 @@ router2.post(
 
     if (!captchaIsValid) {
       req.session.captcha = null;
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Captcha Verification failed , please try again",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Captcha Verification failed , please try again",
+      });
     }
     email = email.toLowerCase().trim();
     const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
@@ -171,121 +169,13 @@ router2.post(
 
     try {
       const loginLink = `https://sumit7.website/linklogin?token=${token}`;
-
       await resendClient.emails.send({
         from: "Sumit <Sumit@sumit7.website>",
         to: email,
         subject: "Sign in to Cloud",
-
-        html: `
-      <!DOCTYPE html>
-      <html>
-        <body style="
-          margin: 0;
-          padding: 0;
-          background: #f5f7fb;
-          font-family: Arial, Helvetica, sans-serif;
-          color: #171717;
-        ">
-          <div style="
-            max-width: 520px;
-            margin: 40px auto;
-            padding: 0 20px;
-          ">
-
-            <div style="
-              background: #ffffff;
-              border-radius: 16px;
-              padding: 40px 35px;
-              text-align: center;
-              border: 1px solid #e5e7eb;
-            ">
-
-              <div style="
-                font-size: 28px;
-                font-weight: 700;
-                margin-bottom: 28px;
-              ">
-                QuizNest
-              </div>
-
-              <h1 style="
-                margin: 0 0 12px;
-                font-size: 24px;
-                color: #111827;
-              ">
-                Sign in to Cloud
-              </h1>
-
-              <p style="
-                margin: 0 0 28px;
-                color: #6b7280;
-                font-size: 15px;
-                line-height: 1.6;
-              ">
-                Click the button below to securely sign in to your account.
-                No password or verification code required.
-              </p>
-
-              <a href="${loginLink}" style="
-                display: inline-block;
-                background: #7c3aed;
-                color: #ffffff;
-                text-decoration: none;
-                font-size: 16px;
-                font-weight: 600;
-                padding: 14px 30px;
-                border-radius: 10px;
-              ">
-                Sign in to Cloud
-              </a>
-
-              <p style="
-                margin: 28px 0 0;
-                color: #9ca3af;
-                font-size: 13px;
-                line-height: 1.5;
-              ">
-                This login link will expire in 10 minutes and can only be
-                used once.
-              </p>
-
-              <div style="
-                margin-top: 25px;
-                padding-top: 20px;
-                border-top: 1px solid #eeeeee;
-                color: #9ca3af;
-                font-size: 12px;
-              ">
-                If you didn't request this email, you can safely ignore it.
-              </div>
-
-            </div>
-
-            <p style="
-              text-align: center;
-              color: #9ca3af;
-              font-size: 12px;
-              margin-top: 20px;
-            ">
-              © 2026 Cloud
-            </p>
-
-          </div>
-        </body>
-      </html>
-    `,
-
-        text: `
-Sign in to Cloud
-
-Click the link below to sign in:
-${loginLink}
-
-This link expires in 10 minutes and can only be used once.
-
-If you didn't request this email, you can safely ignore it.
-    `,
+        text:
+          "Hello! Click the link below to sign in to your Cloud account:\n\n" +
+          loginLink,
       });
 
       console.log(` login link sent to ${email}`);
