@@ -7,8 +7,7 @@ const { Resend } = require("resend");
 const resendClient = new Resend(process.env.TOKEN);
 const { check } = require("express-validator");
 const { EmailLimiter, TimeLimiter, validate } = require("../utils/ratelimit");
-const { upload, cloudinary } = require("../utils/ratelimit");
-const validate2 = require("deep-email-validator");
+
 const { type } = require("os");
 const { supabase } = require("../utils/supabase");
 const { login } = require("../utils/helper");
@@ -24,15 +23,19 @@ const { client } = require("../utils/redisHelper");
 const crypto = require("crypto");
 
 router2.get("/logout", TimeLimiter, (req, res) => {
-  req.session.destroy(err => {
+  req.session.destroy((err) => {
     if (err) {
-      return res.status(500).json({ success: false, message: 'An error occurred during logout', error: err.message });
+      return res
+        .status(500)
+        .json({
+          success: false,
+          message: "An error occurred during logout",
+          error: err.message,
+        });
     }
-    res.clearCookie('connect.sid');
-    res.redirect('/');
+    res.clearCookie("connect.sid");
+    res.redirect("/");
   });
-
-
 });
 
 router2.get("/login", generalLimiter, login, (req, res) => {

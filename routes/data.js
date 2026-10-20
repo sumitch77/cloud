@@ -689,7 +689,13 @@ routerdata.get("/dashboard/search", async (req, res) => {
 // Anything else gets "Item not found" so ids of private items are not revealed.
 async function authorizeRecord(req, type, id) {
   const email = req.session.email;
-  const columns = type === "credentials" ? "id,email" : "id,email,is_public";
+  // value / url are needed to clear the AI cache of the old content
+  const columns =
+    type === "credentials"
+      ? "id,email"
+      : type === "text"
+        ? "id,email,is_public,value"
+        : "id,email,is_public,url";
 
   const { data: row, error } = await supabase
     .schema("cloud")
@@ -807,6 +813,14 @@ routerdata.post("/update", async (req, res) => {
       clearPublicDashboardCache(),
     ]);
 
+    // Edited text = new content = old summaries are outdated. Images / docs can only change
+    // their title (the url stays the same), so their saved answers stay valid.
+    if (type === "text") {
+      const oldValue = analysisSourceValue("text", row);
+      const newValue = analysisSourceValue("text", { value: changes.value });
+      if (oldValue !== newValue) await clearAiCache("text", oldValue);
+    }
+
     res.json({ success: true, message: "Updated successfully" });
   } catch (err) {
     console.error(err);
@@ -865,6 +879,8 @@ routerdata.post("/delete", async (req, res) => {
       clearUserDashboardCache(row.email),
       clearPublicDashboardCache(),
     ]);
+
+    await clearAiCache(type, analysisSourceValue(type, row));
 
     res.json({ success: true, message: "Deleted successfully" });
   } catch (err) {
@@ -936,6 +952,22 @@ class AnalyzeError extends Error {
     super(message);
     this.status = status;
   }
+}
+
+// Simple per-user limit (in memory, resets on restart): 10 requests / 10 minutes
+const analyzeHits = new Map();
+function analyzeRateLimited(email) {
+  const now = Date.now();
+  const windowMs = 10 * 60 * 1000;
+  const max = 10;
+
+  if (analyzeHits.size > 5000) analyzeHits.clear();
+
+  const hits = (analyzeHits.get(email) || []).filter((t) => now - t < windowMs);
+  const limited = hits.length >= max;
+  if (!limited) hits.push(now);
+  analyzeHits.set(email, hits);
+  return limited;
 }
 
 // Row must exist and belong to the user, or be public
@@ -1044,7 +1076,7 @@ async function buildContentParts(type, row) {
     let file;
     try {
       file = await downloadRemote(
-        cloudinaryTransform(row.url, "w_1600,c_limit,q_auto,f_jpg"),
+        cloudinaryTransform(row.url, "w_1024,c_limit,q_auto,f_jpg"),
       );
     } catch (err) {
       file = await downloadRemote(row.url);
@@ -1102,14 +1134,13 @@ async function buildContentParts(type, row) {
   );
 }
 
-async function askGemini(systemText, parts) {
-  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
+// One HTTP call to Gemini (with its own time limit)
+async function geminiRequest(model, requestBody) {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 90000);
+  const timer = setTimeout(() => controller.abort(), 60000);
 
-  let response;
   try {
-    response = await fetch(
+    const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
       {
         method: "POST",
@@ -1117,22 +1148,62 @@ async function askGemini(systemText, parts) {
           "Content-Type": "application/json",
           "x-goog-api-key": process.env.GEMINI_KEY,
         },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemText }] },
-          contents: [{ role: "user", parts }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 4096 },
-        }),
+        body: JSON.stringify(requestBody),
         signal: controller.signal,
       },
     );
+    const json = await response.json().catch(() => ({}));
+    return { response, json };
   } catch (err) {
-    console.error("Gemini request failed:", err);
+    console.error("Gemini request failed:", err.name, err.message);
+    if (err.name === "AbortError") {
+      throw new AnalyzeError(
+        504,
+        "The AI took too long to answer, please try again",
+      );
+    }
     throw new AnalyzeError(502, "AI service is not reachable, try again later");
   } finally {
     clearTimeout(timer);
   }
+}
 
-  const body = await response.json().catch(() => ({}));
+async function askGemini(systemText, parts) {
+  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
+
+  const baseBody = {
+    system_instruction: { parts: [{ text: systemText }] },
+    contents: [{ role: "user", parts }],
+    generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
+  };
+
+  // A short summary does not need long "thinking", which is what makes Flash models slow.
+  // GEMINI_THINKING_LEVEL: low (default) | minimal | medium | high | off
+  const level = process.env.GEMINI_THINKING_LEVEL || "low";
+  const thinkingBody =
+    level === "off"
+      ? null
+      : {
+          ...baseBody,
+          generationConfig: {
+            ...baseBody.generationConfig,
+            thinkingConfig: { thinkingLevel: level },
+          },
+        };
+
+  let { response, json: body } = await geminiRequest(
+    model,
+    thinkingBody || baseBody,
+  );
+
+  // Some models reject a thinking level they don't support: retry once without it
+  if (thinkingBody && response.status === 400) {
+    console.warn(
+      "Gemini rejected thinkingConfig, retrying without it:",
+      body?.error?.message,
+    );
+    ({ response, json: body } = await geminiRequest(model, baseBody));
+  }
 
   if (!response.ok) {
     console.error("Gemini error:", response.status, body?.error?.message);
@@ -1167,6 +1238,107 @@ async function askGemini(systemText, parts) {
   return text;
 }
 
+/* ---------- AI response cache ----------
+ * Lookup order for every analyze request:  Redis  ->  table cloud.ai_responses  ->  Gemini
+ * A new answer is saved to the table and to Redis (5 minutes).
+ *
+ * Table cloud.ai_responses, one row per (value, language):
+ *   value     the thing that was summarised: the text itself, or the file URL for images / docs
+ *   language  language code of the summary ("en", "hi", "ta", ...)
+ *   response  the summary
+ * A summary in another language is a different row, so languages never mix.
+ */
+const ANALYZE_CACHE_TTL = 5 * 60; // seconds in Redis
+
+function analysisSourceValue(type, row) {
+  return String(type === "text" ? row.value || "" : row.url || "").trim();
+}
+
+// The lookup / delete filters travel in the request URL and the (value, language) index has a
+// row size limit, so a long text can't go in the table. Those texts are still cached in Redis
+// (5 min), just not saved in ai_responses.
+const DB_CACHE_MAX_ENCODED = 2000;
+function dbCacheable(sourceValue) {
+  return encodeURIComponent(sourceValue).length <= DB_CACHE_MAX_ENCODED;
+}
+
+function analysisRedisKey(language, sourceValue) {
+  // hashed so the key stays short even for a 10 000 character text
+  return (
+    "ai:response:" +
+    crypto
+      .createHash("sha256")
+      .update(`${language}::${sourceValue}`)
+      .digest("hex")
+  );
+}
+
+// Returns the saved summary or null. A database problem is logged and treated as "not saved yet".
+async function findSavedResponse(sourceValue, language) {
+  if (!dbCacheable(sourceValue)) return null;
+
+  const { data, error } = await supabase
+    .schema("cloud")
+    .from("ai_responses")
+    .select("response")
+    .eq("value", sourceValue)
+    .eq("language", language)
+    .limit(1);
+
+  if (error) {
+    console.error("ai_responses lookup failed:", error.message);
+    return null;
+  }
+  const saved = data && data[0] && data[0].response;
+  return typeof saved === "string" && saved ? saved : null;
+}
+
+async function saveResponse(sourceValue, language, response) {
+  if (!dbCacheable(sourceValue)) return;
+
+  const { error } = await supabase
+    .schema("cloud")
+    .from("ai_responses")
+    .insert({ value: sourceValue, language, response });
+
+  // 23505 = the same (value, language) was saved a moment earlier by another request: fine
+  if (error && error.code !== "23505") {
+    // the user still gets the answer if saving fails
+    console.error("ai_responses insert failed:", error.message);
+  }
+}
+
+// Removes every saved answer (all languages) for one text / image url from Redis and ai_responses.
+// Never throws: a cleanup problem is logged and must not break the edit / delete itself.
+async function clearAiCache(type, sourceValue) {
+  if (!sourceValue || !["text", "images", "docs"].includes(type)) return;
+
+  const redisTask = (async () => {
+    try {
+      const keys = Object.keys(ANALYZE_LANGUAGES).map((code) =>
+        analysisRedisKey(code, sourceValue),
+      );
+      await client.del(keys);
+    } catch (err) {
+      console.error("AI cache: Redis cleanup failed:", err.message);
+    }
+  })();
+
+  const dbTask = (async () => {
+    if (!dbCacheable(sourceValue)) return; // never saved in the table
+    // one query removes this item's answers in every language
+    const { error } = await supabase
+      .schema("cloud")
+      .from("ai_responses")
+      .delete()
+      .eq("value", sourceValue);
+    if (error)
+      console.error("AI cache: ai_responses cleanup failed:", error.message);
+  })();
+
+  await Promise.all([redisTask, dbTask]);
+}
+
 routerdata.post("/analyze", aiUploadLimiter, async (req, res) => {
   const email = req.session?.email;
   if (!email)
@@ -1196,21 +1368,52 @@ routerdata.post("/analyze", aiUploadLimiter, async (req, res) => {
       .json({ success: false, message: "Server configuration error" });
   }
 
+  // Set inside the cache callback so a failure is reported as it really was,
+  // even if cacheData wraps the error it rethrows.
+  let failure = null;
+  let source = "redis"; // becomes "database" or "ai" when the callback has to run
+
   try {
+    // access is checked first, so a cached answer is never served for an item the user can't see
     const row = await findAnalyzableRow(type, id, email);
     const lang = ANALYZE_LANGUAGES[language];
 
-    const parts = await buildContentParts(type, row);
-    const result = await askGemini(buildSystemText(lang), parts);
+    const sourceValue = analysisSourceValue(type, row);
+    const redisKey = analysisRedisKey(language, sourceValue);
 
-    res.json({ success: true, result, language: lang.name });
-  } catch (err) {
-    if (err instanceof AnalyzeError) {
-      return res
-        .status(err.status)
-        .json({ success: false, message: err.message });
+    const response = await cacheData(redisKey, ANALYZE_CACHE_TTL, async () => {
+      try {
+        const saved = await findSavedResponse(sourceValue, language);
+        if (saved !== null) {
+          source = "database";
+          return saved;
+        }
+
+        const parts = await buildContentParts(type, row);
+        const text = await askGemini(buildSystemText(lang), parts);
+
+        source = "ai";
+        await saveResponse(sourceValue, language, text);
+        return text;
+      } catch (err) {
+        failure = err;
+        throw err; // errors are never cached
+      }
+    });
+
+    if (typeof response !== "string" || !response) {
+      throw new Error("Unexpected cached value");
     }
-    console.error(err);
+
+    res.json({ success: true, result: response, language: lang.name, source });
+  } catch (err) {
+    const error = failure || err;
+    if (error instanceof AnalyzeError) {
+      return res
+        .status(error.status)
+        .json({ success: false, message: error.message });
+    }
+    console.error(error);
     res.status(500).json({ success: false, message: "Could not analyze" });
   }
 });

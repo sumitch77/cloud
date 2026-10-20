@@ -8,6 +8,7 @@ const { router2 } = require("./routes/auth");
 const { router4 } = require("./utils/oauth");
 const { router8 } = require("./routes/forgot");
 const { routerdata } = require("./routes/data");
+const { routerchat } = require("./routes/chat");
 
 const { client } = require("./utils/redisHelper");
 const multer = require("multer");
@@ -110,6 +111,7 @@ app.use(router2);
 app.use(router4);
 app.use(router8);
 app.use(routerdata);
+app.use(routerchat);
 
 app.use((req, res, next) => {
   return res.status(404).render("error", {

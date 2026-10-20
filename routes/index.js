@@ -25,6 +25,14 @@ router.get("/alltime", async (req, res) => {
   return res.status(200).json({ success: true });
 });
 
+router.get("/policy", async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../public/policy.html"));
+});
+
+router.get("/terms", async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../public/terms.html"));
+});
+
 module.exports = {
   router,
 };
