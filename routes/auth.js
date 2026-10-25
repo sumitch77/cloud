@@ -21,7 +21,6 @@ const {
 const { client } = require("../utils/redisHelper");
 
 const crypto = require("crypto");
-const { use } = require("react");
 
 router2.get("/logout", TimeLimiter, (req, res) => {
   req.session.destroy((err) => {
