@@ -223,7 +223,9 @@ routerchat.post("/sendchat", chatSendLimiter, async (req, res) => {
     res.status(500).json({ success: false, message: "Could not send message" });
   }
 });
-
+function escapeLike(value) {
+  return value.replace(/[\\%_]/g, "\\$&");
+}
 /* ---------- Chat: find users to talk to ---------- */
 routerchat.post("/searchusers", chatSearchLimiter, async (req, res) => {
   const me = chatUser(req, res);
