@@ -112,6 +112,12 @@
 
   signup.addEventListener('click',async(e)=>{
     e.preventDefault();
+    signup.disabled = true;
+    google.disabled = true;
+    setTimeout(()=>{
+       signup.disabled = false;
+    google.disabled = false;
+    } , 4000)
  const datap = getFingerprint();
     if(!username.value || !password.value || !email.value){
       msg.innerText = 'Please Fill all fields';
@@ -157,6 +163,7 @@
              },
             body: JSON.stringify({username: username.value , password:password.value , email:email.value})
         });
+        
         const data = await response.json();
         if(data.success){
           msg.classList.replace('text-red-800','text-green-800');

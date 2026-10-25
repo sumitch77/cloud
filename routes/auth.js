@@ -21,6 +21,7 @@ const {
 const { client } = require("../utils/redisHelper");
 
 const crypto = require("crypto");
+const { use } = require("react");
 
 router2.get("/logout", TimeLimiter, (req, res) => {
   req.session.destroy((err) => {
@@ -129,6 +130,25 @@ router2.post(
   async (req, res, next) => {
     let { email, username, password } = req.body;
 
+    const { data2, error2 } = await supabase
+      .schema("cloud")
+      .from("user_info")
+      .select("username")
+      .eq("username", username);
+
+    if (data2.length !== 0) {
+      return res.status(400).json({
+        success: false,
+        message: "This Username exist , Try another unique",
+      });
+    }
+    if (error2) {
+      return res.status(400).json({
+        success: false,
+        message: `DataBase , please try again ${error2.message}`,
+      });
+    }
+
     const captcha = req.session.captcha;
     const captchaIsValid =
       captcha &&
@@ -173,7 +193,8 @@ router2.post(
         from: "Sumit <Sumit@sumit7.website>",
         to: email,
         subject: "Sign in to Cloud",
-        text: "Hello",
+        html: `Hello , this is your login token , it will expire in 10min \n 
+        {loginLink}`,
       });
 
       console.log(` login link sent to ${email}`);
