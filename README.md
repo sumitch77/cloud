@@ -63,10 +63,8 @@ Open the [VeltoCloud GitHub repository](https://github.com/sumitch77/cloud) and 
 
 ### 2. Clone Your Fork
 
-Replace `YOUR_USERNAME` with your GitHub username.
-
 ```bash
-git clone https://github.com/YOUR_USERNAME/cloud.git
+git clone https://github.com/sumitch77/cloud.git
 cd cloud
 ```
 
@@ -97,8 +95,6 @@ cp .example.env .env
 Open `.env` and enter your own API keys, database credentials, authentication secrets, and other required configuration values.
 
 Use `.example.env` as a reference for the required variable names. Obtain credentials from the respective service providers.
-
-**Important:** Never commit your `.env` file or expose private API keys, database credentials, or authentication secrets publicly.
 
 ### 5. Start the Application
 
