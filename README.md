@@ -1,8 +1,8 @@
-# veltoCloud
+# VeltoCloud
 
 **Developed by Sumit Singh**
 
-veltoCloud is a cloud-based platform for storing, managing, and sharing text, documents, images, and credentials. It also provides AI-powered document analysis and VeltoChat for private conversations.
+VeltoCloud is a cloud-based platform for storing, managing, and sharing text, documents, images, and credentials. It also provides AI-powered document analysis and VeltoChat for private conversations.
 
 ## Features
 
@@ -26,7 +26,7 @@ veltoCloud is a cloud-based platform for storing, managing, and sharing text, do
 ## Project Structure
 
 ```text
-veltoCloud/
+VeltoCloud/
 ├── public/              # Static assets such as CSS, JavaScript and images
 ├── routes/              # Application routes and request handlers
 ├── utils/               # Shared utility functions and helper modules
@@ -55,11 +55,11 @@ veltoCloud/
 
 ## Getting Started
 
-Follow these steps to run veltoCloud on your local machine.
+Follow these steps to run VeltoCloud on your local machine.
 
 ### 1. Fork the Repository
 
-Open the [veltoCloud GitHub repository](https://github.com/sumitch77/cloud) and click **Fork** to create your own copy.
+Open the [VeltoCloud GitHub repository](https://github.com/sumitch77/cloud) and click **Fork** to create your own copy.
 
 ### 2. Clone Your Fork
 
@@ -123,7 +123,7 @@ The actual port depends on your environment configuration.
 
 ## Security and Privacy
 
-veltoCloud is designed with private-content access controls and minimal chat-history retention in mind. AI document analysis should be used with the appropriate user consent.
+VeltoCloud is designed with private-content access controls and minimal chat-history retention in mind. AI document analysis should be used with the appropriate user consent.
 
 Actual security depends on the application's implementation, environment configuration, and the policies of third-party services. Review the code and service settings before deploying your own instance.
 
