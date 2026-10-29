@@ -13,17 +13,17 @@
 
   <!-- Header -->
   <header class="w-full border-b border-neutral-800 bg-neutral-950">
-    <div class="flex h-16 items-center justify-between px-4 sm:px-6">
+    <div class="flex h-16 items-center justify-between px-4 sm:px-4">
 
       <!-- Logo -->
       <a href="/" class="flex items-center gap-3">
-        <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500 text-white">
+        <span class="flex h-10 w-10 max-sm:h-8 max-sm:w-8 items-center justify-center rounded-xl bg-blue-500 text-white">
           <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M7 18a4 4 0 0 1-.5-7.97A5.5 5.5 0 0 1 17 8.5a4.5 4.5 0 0 1 .5 9.5H7z" />
             <path d="M12 16v-5m0 0-2 2m2-2 2 2" />
           </svg>
         </span>
-        <span class="text-xl font-semibold tracking-tight">VeltoCloud</span>
+        <span class="text-xl max-sm:text-md font-semibold tracking-tight">VeltoCloud </span>
       </a>
 
       <!-- Right side -->
@@ -36,13 +36,13 @@
           </svg>
           Private &amp; secure
         </div>
-          <button type="button" id="chatButton" class="rounded-lg border cursor:pointer border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
+          <button type="button" id="chatButton" class="rounded-lg max-sm:rounded-md border cursor:pointer border-neutral-700 px-4 max-sm:px-2 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
          <a href="/chat">Chat</a>
         </button>
-        <button type="button" id="loginButton" class="rounded-lg border hidden cursor:pointer border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
+        <button type="button" id="loginButton" class="rounded-lg max-sm:rounded-md border hidden cursor:pointer border-neutral-700 px-4 max-sm:px-2 py-2 text-sm font-medium text-neutral-100 transition hover:bg-neutral-800 active:bg-neutral-700">
          <a href="/login"> Login</a>
         </button>
-        <a href="/logout" class="rounded-lg bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-950 transition hover:bg-neutral-300 active:bg-neutral-400">
+        <a href="/logout" class="rounded-lg max-sm:rounded-sm bg-neutral-100 px-4 max-sm:px-2 py-2 text-sm font-medium text-neutral-950 transition hover:bg-neutral-300 active:bg-neutral-400">
           Logout
         </a>
       </div>
